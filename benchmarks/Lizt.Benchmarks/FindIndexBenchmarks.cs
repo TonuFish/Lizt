@@ -4,7 +4,7 @@ using System;
 
 namespace Lizt.Benchmarks
 {
-    public class Benchmarks
+    public class FindIndexBenchmarks
     {
         [Benchmark]
         public void Scenario1()

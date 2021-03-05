@@ -5,11 +5,13 @@ VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lizt.Extensions", "src\Lizt.Extensions\Lizt.Extensions.csproj", "{06666EBF-5D8E-4793-95C5-1E14FFA6217B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lizt.Tests", "tests\Lizt.Tests\Lizt.Tests.csproj", "{3A26896A-0EC2-4AE0-9E9F-11382D886D50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lizt.Tests", "tests\Lizt.Tests\Lizt.Tests.csproj", "{3A26896A-0EC2-4AE0-9E9F-11382D886D50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lizt.Benchmarks", "benchmarks\Lizt.Benchmarks\Lizt.Benchmarks.csproj", "{0DCE65B8-EE10-41CB-A321-20926E8FC4FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lizt.Benchmarks", "benchmarks\Lizt.Benchmarks\Lizt.Benchmarks.csproj", "{0DCE65B8-EE10-41CB-A321-20926E8FC4FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lizt.Generators", "src\Lizt.Generators\Lizt.Generators.csproj", "{72DD2376-836B-47C4-91EE-E232F3C59BC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lizt.Generators", "src\Lizt.Generators\Lizt.Generators.csproj", "{72DD2376-836B-47C4-91EE-E232F3C59BC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lizt.Samples", "samples\Lizt.Samples\Lizt.Samples.csproj", "{B9EAFB88-D1D6-46A9-9A16-D2CADABCBBC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{72DD2376-836B-47C4-91EE-E232F3C59BC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72DD2376-836B-47C4-91EE-E232F3C59BC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72DD2376-836B-47C4-91EE-E232F3C59BC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9EAFB88-D1D6-46A9-9A16-D2CADABCBBC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9EAFB88-D1D6-46A9-9A16-D2CADABCBBC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9EAFB88-D1D6-46A9-9A16-D2CADABCBBC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9EAFB88-D1D6-46A9-9A16-D2CADABCBBC0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
