@@ -9,10 +9,14 @@ namespace Lizt.Samples
         {
             Console.WriteLine("Hello World!");
 
-            Span<Single> floatSpan = stackalloc Single[50];
-            floatSpan[49] = 128F;
-            var foundIndexSingle = floatSpan.FindIndex(128);
-            Console.WriteLine(foundIndexSingle);
+            ReadOnlySpan<Byte> bytes = stackalloc byte[50];
+            var foundIndexReadOnlySpan = bytes.FindIndex(0x00);
+            Console.WriteLine(foundIndexReadOnlySpan);
+
+            //Span<Single> floatSpan = stackalloc Single[50];
+            //floatSpan[49] = 128F;
+            //var foundIndexSingle = floatSpan.FindIndex(128);
+            //Console.WriteLine(foundIndexSingle);
 
             //Span<Double> doubleSpan = stackalloc Double[50];
             //doubleSpan[3] = 128D;

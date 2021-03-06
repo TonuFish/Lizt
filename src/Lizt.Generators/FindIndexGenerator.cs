@@ -51,16 +51,17 @@ namespace Lizt.Generators
             GenerateFields(sb);
             GenerateSharedMethods(sb);
 
-            //foreach (var type in _hardwareTypes)
-            //{
-            //    foreach (var name in _sourceArgumentNames)
-            //    {
-            //        GenerateFindIndexMethod(sb, type, name);
-            //    }
-            //}
+            foreach (var type in _hardwareTypes)
+            {
+                foreach (var name in _sourceArgumentNames)
+                {
+                    GenerateFindIndexMethod(sb, type, name);
+                }
+            }
 
+            // TODO: Remove these test methods
             //GenerateFindIndexMethod(sb, "Byte", "span");
-            GenerateFindIndexMethod(sb, "Single", "span");
+            //GenerateFindIndexMethod(sb, "Single", "span");
             //GenerateFindIndexMethod(sb, "Double", "span");
 
             // Remove spacing newline from method group
@@ -178,7 +179,6 @@ $@"
              * therefore Vector256's cannot be used.
              * Not sure why, but it's inconvenient.
              */
-
 
             /*
              * 256
