@@ -14,10 +14,10 @@ namespace Lizt.Samples
             var foundIndexSingle = floatSpan.FindIndex(128);
             Console.WriteLine(foundIndexSingle);
 
-            Span<Double> doubleSpan = stackalloc Double[50];
-            doubleSpan[3] = 128D;
-            var foundIndexDouble = doubleSpan.FindIndex(128);
-            Console.WriteLine(foundIndexDouble);
+            //Span<Double> doubleSpan = stackalloc Double[50];
+            //doubleSpan[3] = 128D;
+            //var foundIndexDouble = doubleSpan.FindIndex(128);
+            //Console.WriteLine(foundIndexDouble);
 
             //Span<Int32> intSpan = stackalloc Int32[50];
             //intSpan[3] = 128;

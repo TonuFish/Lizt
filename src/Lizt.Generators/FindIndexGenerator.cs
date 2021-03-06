@@ -7,7 +7,13 @@ namespace Lizt.Generators
     [Generator]
     public class FindIndexGenerator : ISourceGenerator
     {
-        private const string HintName = "Lizt.Generated.FindIndex.g.cs";
+#if NET5_0_OR_GREATER
+        private const string HintName = "Lizt.Generated.FindIndex.g5.cs";
+#else
+        private const string HintName = "Lizt.Generated.FindIndex.g31.cs";
+#endif
+        // TODO: See if there's a performance hit to changing this structure to something more
+        // engineered (instead of a bunch of strings)
         private static readonly string[] _hardwareTypes = new string[]
         {
             "Byte",
@@ -38,7 +44,7 @@ namespace Lizt.Generators
             //System.Diagnostics.Debugger.Launch();
             //System.Diagnostics.Debugger.Break();
 
-            // TODO: Refine capacity after generation
+            // TODO: Refine capacity after final generation
             var sb = new StringBuilder(capacity: 180_000);
 
             GenerateClassHeader(sb);
@@ -53,9 +59,9 @@ namespace Lizt.Generators
             //    }
             //}
 
-            GenerateFindIndexMethod(sb, "Byte", "span");
+            //GenerateFindIndexMethod(sb, "Byte", "span");
             GenerateFindIndexMethod(sb, "Single", "span");
-            GenerateFindIndexMethod(sb, "Double", "span");
+            //GenerateFindIndexMethod(sb, "Double", "span");
 
             // Remove spacing newline from method group
             sb.Length -= System.Environment.NewLine.Length;
@@ -70,6 +76,7 @@ namespace Lizt.Generators
 
         private void GenerateClassHeader(StringBuilder sb)
         {
+            // TODO: Use NuGet/assembly? version for GeneratedCodeAttribute version
             sb.Append(
 @"using System;
 using System.CodeDom.Compiler;
@@ -101,14 +108,13 @@ namespace Lizt.Generated.FindIndex
         private static int ParseOffsetFromMoveMask(int moveMask, int typeSize)
         {
             var shiftCount = 0;
-            do
+            while (moveMask > 1)
             {
                 moveMask >>= typeSize;
                 ++shiftCount;
             }
-            while (moveMask != 0);
 
-            return shiftCount - 1;
+            return shiftCount;
         }
 
 ");
@@ -150,7 +156,7 @@ $@"
             fixed ({type}* bufferPtr = {sourceArgumentName})
             {{");
 
-            // Vector256 (Avx) implementation
+            // Vector256 (Avx+) implementation
 
             /* Vector256<T> instruction set map
              * 
@@ -167,36 +173,54 @@ $@"
              * | float  | Avx  |    Avx       |   Avx    |    Avx      |
              * | double | Avx  |    Avx       |   Avx    |    Avx      |
              * 
-             * Exception (.NET Core 3.1)
-             * There's no support for CompareEqual float or double Vector256s under .NET Core 3.1.
-             * Why. Why is this so.
+             * Exception (.NET Core 3.x)
+             * There's no support for CompareEqual using float or double arguments under .NET Core,
+             * therefore Vector256's cannot be used.
+             * Not sure why, but it's inconvenient.
              */
 
-#if NETCOREAPP
+
+            /*
+             * 256
+             * Single : 128, 64, 32, 16, 8, 4, 2, 1 = -24
+             * Double : 8, 4, 2, 1 = -28
+             * 128
+             * Single : 8, 4, 2, 1 = -28
+             * Double : 2, 1 = -30
+             */
+
+#if !NET5_0_OR_GREATER
             if (type is not ("Single" or "Double"))
             {
 #endif
-            var instructionSet256 = type is "Float" or "Double"
-                ? "Avx"
-                : "Avx2";
 
-            var compareEqual256 = $@"{instructionSet256}.CompareEqual(targetVector, loopVector);";
-
-            string moveMask256, lzcntAction256, bmi1Action256, defaultAction256;
-            if (type is "Float" or "Double")
+            string instructionSet256, compareEqual256;
+            string moveMask256, lzcntAction256, tzcntAction256, defaultAction256;
+            if (type is "Single" or "Double")
             {
+                instructionSet256 = "Avx";
+#if !NET5_0_OR_GREATER
+                compareEqual256 = @"Vector256<Single>.Zero;
+throw new Exception(); // If you have hit this line, something has gone very wrong";
+#else
+                compareEqual256 = $@"Avx.CompareEqual(targetVector, loopVector);";
+#endif
+
                 moveMask256 = @"Avx.MoveMask(matchVector);";
-                lzcntAction256 = string.Empty; // TODO:
-                bmi1Action256 = string.Empty; // TODO:
+                lzcntAction256 = $@"(int)Lzcnt.LeadingZeroCount((uint)moveMask) - {(type is "Single" ? "24" : "28")};";
+                tzcntAction256 = @"(int)Bmi1.TrailingZeroCount((uint)moveMask);";
                 defaultAction256 = $@"ParseOffsetFromMoveMask(moveMask, 1);";
             }
             else
             {
+                instructionSet256 = "Avx2";
+                compareEqual256 = $@"Avx2.CompareEqual(targetVector, loopVector);";
+
                 moveMask256 = type is "Byte" or "SByte"
                     ? @"Avx2.MoveMask(matchVector);"
                     : $@"Avx2.MoveMask(Unsafe.As<Vector256<{type}>, Vector256<Byte>>(ref matchVector));";
                 lzcntAction256 = $@"Vector256<{type}>.Count - ((int)Lzcnt.LeadingZeroCount((uint)moveMask) / sizeof({type})) - 1;";
-                bmi1Action256 = $@"(int)Bmi1.TrailingZeroCount((uint)moveMask) / sizeof({type});";
+                tzcntAction256 = $@"(int)Bmi1.TrailingZeroCount((uint)moveMask) / sizeof({type});";
                 defaultAction256 = $@"ParseOffsetFromMoveMask(moveMask, sizeof({type}));";
             }
 
@@ -213,7 +237,7 @@ $@"
                         Vector256<{type}> matchVector = {compareEqual256}
                         int moveMask = {moveMask256}
 
-                        if (result != 0)
+                        if (moveMask != 0)
                         {{
                             if (Lzcnt.IsSupported)
                             {{
@@ -221,7 +245,7 @@ $@"
                             }}
                             else if (Bmi1.IsSupported)
                             {{
-                                return {bmi1Action256}
+                                return {tzcntAction256}
                             }}
                             else
                             {{
@@ -235,11 +259,11 @@ $@"
                     }}
                 }}
 ");
-#if NETCOREAPP
+#if !NET5_0_OR_GREATER
             }
 #endif
 
-            // Vector128 (Sse) implementation
+            // Vector128 (Sse+) implementation
 
             /* Vector128<T> instruction set map
              * 
@@ -260,18 +284,18 @@ $@"
             var instructionSet128 = type switch
             {
                 "Int64" or "UInt64" => "Sse41",
-                "Float" => "Sse",
+                "Single" => "Sse",
                 _ => "Sse2"
             };
 
             var compareEqual128 = $@"{instructionSet128}.CompareEqual(targetVector, loopVector);";
 
-            string moveMask128, lzcntAction128, bmi1Action128, defaultAction128;
-            if (type is "Float" or "Double")
+            string moveMask128, lzcntAction128, tzcntAction128, defaultAction128;
+            if (type is "Single" or "Double")
             {
-                moveMask128 = type is "Float" ? @"Sse.MoveMask(matchVector);" : @"Sse2.MoveMask(matchVector);";
-                lzcntAction128 = string.Empty; // TODO:
-                bmi1Action128 = string.Empty; // TODO:
+                moveMask128 = type is "Single" ? @"Sse.MoveMask(matchVector);" : @"Sse2.MoveMask(matchVector);";
+                lzcntAction128 = $@"(int)Lzcnt.LeadingZeroCount((uint)moveMask) - {(type is "Single" ? "28" : "30")};";
+                tzcntAction128 = @"(int)Bmi1.TrailingZeroCount((uint)moveMask);";
                 defaultAction128 = $@"ParseOffsetFromMoveMask(moveMask, 1);";
             }
             else
@@ -280,8 +304,8 @@ $@"
                     ? @"Sse2.MoveMask(matchVector);"
                     : $@"Sse2.MoveMask(Unsafe.As<Vector128<{type}>, Vector128<Byte>>(ref matchVector));";
                 lzcntAction128 = $@"Vector128<{type}>.Count - ((int)Lzcnt.LeadingZeroCount((uint)moveMask) / sizeof({type})) - 1 - Vec128MoveMaskOffset;";
-                bmi1Action128 = $@"(int)Bmi1.TrailingZeroCount((uint)moveMask) / sizeof({type});";
-                defaultAction128 = $@"ParseOffsetFromMoveMask(result, sizeof({type}));";
+                tzcntAction128 = $@"(int)Bmi1.TrailingZeroCount((uint)moveMask) / sizeof({type});";
+                defaultAction128 = $@"ParseOffsetFromMoveMask(moveMask, sizeof({type}));";
             }
 
             sb.Append(
@@ -305,7 +329,7 @@ $@"
                             }}
                             else if (Bmi1.IsSupported)
                             {{
-                                return {bmi1Action128}
+                                return {tzcntAction128}
                             }}
                             else
                             {{
