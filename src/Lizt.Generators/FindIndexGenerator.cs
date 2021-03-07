@@ -41,8 +41,7 @@ namespace Lizt.Generators
             //System.Diagnostics.Debugger.Launch();
             //System.Diagnostics.Debugger.Break();
 
-            // TODO: Refine capacity after final generation
-            var sb = new StringBuilder(capacity: 180_000);
+            var sb = new StringBuilder(capacity: 132_000); // 131,568 total
 
             GenerateClassHeader(sb);
             GenerateFields(sb);
@@ -170,6 +169,9 @@ $@"
              * There's no support for CompareEqual using float or double arguments under .NET Core,
              * therefore Vector256's cannot be used.
              * Not sure why, but it's inconvenient.
+             * 
+             * This is wrong, just the compare equal overload doesn't exist. Explain "compareEqual256core".
+             * It's solved now. Yay.
              */
 
             /*
@@ -181,12 +183,13 @@ $@"
              * Double : 2, 1 = -30
              */
 
-            string instructionSet256, compareEqual256;
+            string instructionSet256, compareEqual256, compareEqual256core;
             string moveMask256, lzcntAction256, tzcntAction256, defaultAction256;
             if (type is "Single" or "Double")
             {
                 instructionSet256 = "Avx";
                 compareEqual256 = $@"Avx.CompareEqual(targetVector, loopVector);";
+                compareEqual256core = $@"Avx.Compare(targetVector, loopVector, FloatComparisonMode.OrderedEqualNonSignaling);";
 
                 moveMask256 = @"Avx.MoveMask(matchVector);";
                 lzcntAction256 = $@"(int)Lzcnt.LeadingZeroCount((uint)moveMask) - {(type is "Single" ? "24" : "28")};";
@@ -197,6 +200,7 @@ $@"
             {
                 instructionSet256 = "Avx2";
                 compareEqual256 = $@"Avx2.CompareEqual(targetVector, loopVector);";
+                compareEqual256core = $@"Avx2.CompareEqual(targetVector, loopVector);";
 
                 moveMask256 = type is "Byte" or "SByte"
                     ? @"Avx2.MoveMask(matchVector);"
@@ -208,10 +212,6 @@ $@"
 
             sb.Append(
 $@"
-#if !NET5_0_OR_GREATER
-                if (type is not (""Single"" or ""Double""))
-                {{
-#endif
                 if ({instructionSet256}.IsSupported && endIndex - index >= Vector256<{type}>.Count)
                 {{
                     var terminatingIndex = endIndex - ((endIndex - index) % Vector256<{type}>.Count);
@@ -220,7 +220,11 @@ $@"
                     while (index < terminatingIndex)
                     {{
                         Vector256<{type}> loopVector = Avx.LoadVector256(bufferPtr + index);
+#if NET5_0_OR_GREATER
                         Vector256<{type}> matchVector = {compareEqual256}
+#else
+                        Vector256<{type}> matchVector = {compareEqual256core}
+#endif
                         int moveMask = {moveMask256}
 
                         if (moveMask != 0)
@@ -244,9 +248,6 @@ $@"
                         }}
                     }}
                 }}
-#if !NET5_0_OR_GREATER
-                }}
-#endif
 ");
 
             // Vector128 (Sse+) implementation

@@ -9,6 +9,11 @@ namespace Lizt.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Byte[] array, Byte value) => Gen.FindIndex(array, value, 0, array.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int FindIndex(this Byte[] array, Byte value, int startIndex) => Gen.FindIndex(array, value, startIndex, array.Length);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int FindIndex(this Byte[] array, Byte value, int startIndex, int count) => Gen.FindIndex(array, value, startIndex, count);
+        // TODO: The rest of these...... Really starting to feel this should be a generated file as well.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Span<Byte> span, Byte value) => Gen.FindIndex(span, value, 0, span.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this ReadOnlySpan<Byte> span, Byte value) => Gen.FindIndex(span, value, 0, span.Length);
