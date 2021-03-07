@@ -7,11 +7,8 @@ namespace Lizt.Generators
     [Generator]
     public class FindIndexGenerator : ISourceGenerator
     {
-#if NET5_0_OR_GREATER
-        private const string HintName = "Lizt.Generated.FindIndex.g5.cs";
-#else
-        private const string HintName = "Lizt.Generated.FindIndex.g31.cs";
-#endif
+        private const string HintName = "Lizt.Generated.FindIndex.g.cs";
+
         // TODO: See if there's a performance hit to changing this structure to something more
         // engineered (instead of a bunch of strings)
         private static readonly string[] _hardwareTypes = new string[]
@@ -58,11 +55,6 @@ namespace Lizt.Generators
                     GenerateFindIndexMethod(sb, type, name);
                 }
             }
-
-            // TODO: Remove these test methods
-            //GenerateFindIndexMethod(sb, "Byte", "span");
-            //GenerateFindIndexMethod(sb, "Single", "span");
-            //GenerateFindIndexMethod(sb, "Double", "span");
 
             // Remove spacing newline from method group
             sb.Length -= System.Environment.NewLine.Length;
@@ -189,22 +181,12 @@ $@"
              * Double : 2, 1 = -30
              */
 
-#if !NET5_0_OR_GREATER
-            if (type is not ("Single" or "Double"))
-            {
-#endif
-
             string instructionSet256, compareEqual256;
             string moveMask256, lzcntAction256, tzcntAction256, defaultAction256;
             if (type is "Single" or "Double")
             {
                 instructionSet256 = "Avx";
-#if !NET5_0_OR_GREATER
-                compareEqual256 = @"Vector256<Single>.Zero;
-throw new Exception(); // If you have hit this line, something has gone very wrong";
-#else
                 compareEqual256 = $@"Avx.CompareEqual(targetVector, loopVector);";
-#endif
 
                 moveMask256 = @"Avx.MoveMask(matchVector);";
                 lzcntAction256 = $@"(int)Lzcnt.LeadingZeroCount((uint)moveMask) - {(type is "Single" ? "24" : "28")};";
@@ -226,6 +208,10 @@ throw new Exception(); // If you have hit this line, something has gone very wro
 
             sb.Append(
 $@"
+#if !NET5_0_OR_GREATER
+                if (type is not (""Single"" or ""Double""))
+                {{
+#endif
                 if ({instructionSet256}.IsSupported && endIndex - index >= Vector256<{type}>.Count)
                 {{
                     var terminatingIndex = endIndex - ((endIndex - index) % Vector256<{type}>.Count);
@@ -258,10 +244,10 @@ $@"
                         }}
                     }}
                 }}
-");
 #if !NET5_0_OR_GREATER
-            }
+                }}
 #endif
+");
 
             // Vector128 (Sse+) implementation
 
