@@ -100,7 +100,7 @@ namespace Lizt.Generated.FindIndex
         private static int ParseOffsetFromMoveMask(int moveMask, int typeSize)
         {
             var shiftCount = 0;
-            while (moveMask > 1)
+            while ((moveMask & 1) == 0)
             {
                 moveMask >>= typeSize;
                 ++shiftCount;
