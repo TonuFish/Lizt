@@ -41,7 +41,7 @@ namespace Lizt.Generators
             //System.Diagnostics.Debugger.Launch();
             //System.Diagnostics.Debugger.Break();
 
-            var sb = new StringBuilder(capacity: 132_000); // 131,568 total
+            var sb = new StringBuilder(capacity: 135_000); // 134,397 total
 
             GenerateClassHeader(sb);
             GenerateFields(sb);
@@ -79,7 +79,7 @@ using System.Runtime.Intrinsics.X86;
 namespace Lizt.Generated.FindIndex
 {
     [GeneratedCodeAttribute(""LiztFindIndexGenerator"", ""0.7.0"")]
-    public static class Gen
+    internal static class Gen
     {
 ");
         }
@@ -129,16 +129,12 @@ namespace Lizt.Generated.FindIndex
             sb.Append(
 $@"
         {{
-            if (startIndex < 0)
-            {{ throw new ArgumentException($""{{nameof(startIndex)}} must be a non-negative integer."", nameof(startIndex)); }}
-            if (count < 1)
-            {{ throw new ArgumentException($""{{nameof(count)}} must be greater or equal to 1."", nameof(count)); }}
-            if ({sourceArgumentName}.Length == 0)
-            {{ return NotFound; }}
+            if (startIndex < 0 || startIndex >= {sourceArgumentName}.Length)
+            {{ throw new ArgumentOutOfRangeException(nameof(startIndex), startIndex, ""Starting index was out of range. It must be non-negative and less than the length of the source.""); }}
+            if (count < 1 || startIndex + count > {sourceArgumentName}.Length)
+            {{ throw new ArgumentOutOfRangeException(nameof(count), count, ""Count was out of range. It must be positive and not cause iteration outside the bounds of the source.""); }}
 
-            var endIndex = startIndex + count < {sourceArgumentName}.Length
-                ? startIndex + count
-                : {sourceArgumentName}.Length;
+            var endIndex = startIndex + count;
             var index = startIndex;
 ");
 
@@ -231,15 +227,15 @@ $@"
                         {{
                             if (Lzcnt.IsSupported)
                             {{
-                                return {lzcntAction256}
+                                return index + {lzcntAction256}
                             }}
                             else if (Bmi1.IsSupported)
                             {{
-                                return {tzcntAction256}
+                                return index + {tzcntAction256}
                             }}
                             else
                             {{
-                                return {defaultAction256}
+                                return index + {defaultAction256}
                             }}
                         }}
                         else
@@ -312,15 +308,15 @@ $@"
                         {{
                             if (Lzcnt.IsSupported)
                             {{
-                                return {lzcntAction128}
+                                return index + {lzcntAction128}
                             }}
                             else if (Bmi1.IsSupported)
                             {{
-                                return {tzcntAction128}
+                                return index + {tzcntAction128}
                             }}
                             else
                             {{
-                                return {defaultAction128}
+                                return index + {defaultAction128}
                             }}
                         }}
                         else

@@ -23,11 +23,11 @@ namespace Lizt.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Span<Byte> span, Byte value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Byte> span, Byte value) => Gen.FindIndex(span, value, 0, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Byte> readOnlySpan, Byte value) => Gen.FindIndex(readOnlySpan, value, 0, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Byte> span, Byte value, int startIndex) => Gen.FindIndex(span, value, startIndex, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Byte> readOnlySpan, Byte value, int startIndex) => Gen.FindIndex(readOnlySpan, value, startIndex, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Byte> span, Byte value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
+        public static int FindIndex(this ReadOnlySpan<Byte> readOnlySpan, Byte value, int startIndex, int count) => Gen.FindIndex(readOnlySpan, value, startIndex, count);
 
         #endregion Byte
 
@@ -46,11 +46,11 @@ namespace Lizt.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Span<SByte> span, SByte value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<SByte> span, SByte value) => Gen.FindIndex(span, value, 0, span.Length);
+        public static int FindIndex(this ReadOnlySpan<SByte> readOnlySpan, SByte value) => Gen.FindIndex(readOnlySpan, value, 0, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<SByte> span, SByte value, int startIndex) => Gen.FindIndex(span, value, startIndex, span.Length);
+        public static int FindIndex(this ReadOnlySpan<SByte> readOnlySpan, SByte value, int startIndex) => Gen.FindIndex(readOnlySpan, value, startIndex, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<SByte> span, SByte value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
+        public static int FindIndex(this ReadOnlySpan<SByte> readOnlySpan, SByte value, int startIndex, int count) => Gen.FindIndex(readOnlySpan, value, startIndex, count);
 
         #endregion SByte
 
@@ -69,11 +69,11 @@ namespace Lizt.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Span<Int16> span, Int16 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Int16> span, Int16 value) => Gen.FindIndex(span, value, 0, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Int16> readOnlySpan, Int16 value) => Gen.FindIndex(readOnlySpan, value, 0, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Int16> span, Int16 value, int startIndex) => Gen.FindIndex(span, value, startIndex, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Int16> readOnlySpan, Int16 value, int startIndex) => Gen.FindIndex(readOnlySpan, value, startIndex, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Int16> span, Int16 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
+        public static int FindIndex(this ReadOnlySpan<Int16> readOnlySpan, Int16 value, int startIndex, int count) => Gen.FindIndex(readOnlySpan, value, startIndex, count);
 
         #endregion Int16
 
@@ -92,11 +92,11 @@ namespace Lizt.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Span<UInt16> span, UInt16 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<UInt16> span, UInt16 value) => Gen.FindIndex(span, value, 0, span.Length);
+        public static int FindIndex(this ReadOnlySpan<UInt16> readOnlySpan, UInt16 value) => Gen.FindIndex(readOnlySpan, value, 0, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<UInt16> span, UInt16 value, int startIndex) => Gen.FindIndex(span, value, startIndex, span.Length);
+        public static int FindIndex(this ReadOnlySpan<UInt16> readOnlySpan, UInt16 value, int startIndex) => Gen.FindIndex(readOnlySpan, value, startIndex, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<UInt16> span, UInt16 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
+        public static int FindIndex(this ReadOnlySpan<UInt16> readOnlySpan, UInt16 value, int startIndex, int count) => Gen.FindIndex(readOnlySpan, value, startIndex, count);
 
         #endregion UInt16
 
@@ -115,11 +115,11 @@ namespace Lizt.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Span<Int32> span, Int32 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Int32> span, Int32 value) => Gen.FindIndex(span, value, 0, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Int32> readOnlySpan, Int32 value) => Gen.FindIndex(readOnlySpan, value, 0, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Int32> span, Int32 value, int startIndex) => Gen.FindIndex(span, value, startIndex, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Int32> readOnlySpan, Int32 value, int startIndex) => Gen.FindIndex(readOnlySpan, value, startIndex, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Int32> span, Int32 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
+        public static int FindIndex(this ReadOnlySpan<Int32> readOnlySpan, Int32 value, int startIndex, int count) => Gen.FindIndex(readOnlySpan, value, startIndex, count);
 
         #endregion Int32
 
@@ -138,11 +138,11 @@ namespace Lizt.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Span<UInt32> span, UInt32 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<UInt32> span, UInt32 value) => Gen.FindIndex(span, value, 0, span.Length);
+        public static int FindIndex(this ReadOnlySpan<UInt32> readOnlySpan, UInt32 value) => Gen.FindIndex(readOnlySpan, value, 0, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<UInt32> span, UInt32 value, int startIndex) => Gen.FindIndex(span, value, startIndex, span.Length);
+        public static int FindIndex(this ReadOnlySpan<UInt32> readOnlySpan, UInt32 value, int startIndex) => Gen.FindIndex(readOnlySpan, value, startIndex, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<UInt32> span, UInt32 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
+        public static int FindIndex(this ReadOnlySpan<UInt32> readOnlySpan, UInt32 value, int startIndex, int count) => Gen.FindIndex(readOnlySpan, value, startIndex, count);
 
         #endregion UInt32
 
@@ -161,11 +161,11 @@ namespace Lizt.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Span<Int64> span, Int64 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Int64> span, Int64 value) => Gen.FindIndex(span, value, 0, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Int64> readOnlySpan, Int64 value) => Gen.FindIndex(readOnlySpan, value, 0, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Int64> span, Int64 value, int startIndex) => Gen.FindIndex(span, value, startIndex, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Int64> readOnlySpan, Int64 value, int startIndex) => Gen.FindIndex(readOnlySpan, value, startIndex, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Int64> span, Int64 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
+        public static int FindIndex(this ReadOnlySpan<Int64> readOnlySpan, Int64 value, int startIndex, int count) => Gen.FindIndex(readOnlySpan, value, startIndex, count);
 
         #endregion Int64
 
@@ -184,11 +184,11 @@ namespace Lizt.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Span<UInt64> span, UInt64 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<UInt64> span, UInt64 value) => Gen.FindIndex(span, value, 0, span.Length);
+        public static int FindIndex(this ReadOnlySpan<UInt64> readOnlySpan, UInt64 value) => Gen.FindIndex(readOnlySpan, value, 0, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<UInt64> span, UInt64 value, int startIndex) => Gen.FindIndex(span, value, startIndex, span.Length);
+        public static int FindIndex(this ReadOnlySpan<UInt64> readOnlySpan, UInt64 value, int startIndex) => Gen.FindIndex(readOnlySpan, value, startIndex, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<UInt64> span, UInt64 value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
+        public static int FindIndex(this ReadOnlySpan<UInt64> readOnlySpan, UInt64 value, int startIndex, int count) => Gen.FindIndex(readOnlySpan, value, startIndex, count);
 
         #endregion UInt64
 
@@ -207,11 +207,11 @@ namespace Lizt.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Span<Single> span, Single value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Single> span, Single value) => Gen.FindIndex(span, value, 0, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Single> readOnlySpan, Single value) => Gen.FindIndex(readOnlySpan, value, 0, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Single> span, Single value, int startIndex) => Gen.FindIndex(span, value, startIndex, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Single> readOnlySpan, Single value, int startIndex) => Gen.FindIndex(readOnlySpan, value, startIndex, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Single> span, Single value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
+        public static int FindIndex(this ReadOnlySpan<Single> readOnlySpan, Single value, int startIndex, int count) => Gen.FindIndex(readOnlySpan, value, startIndex, count);
 
         #endregion Single
 
@@ -230,11 +230,11 @@ namespace Lizt.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int FindIndex(this Span<Double> span, Double value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Double> span, Double value) => Gen.FindIndex(span, value, 0, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Double> readOnlySpan, Double value) => Gen.FindIndex(readOnlySpan, value, 0, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Double> span, Double value, int startIndex) => Gen.FindIndex(span, value, startIndex, span.Length);
+        public static int FindIndex(this ReadOnlySpan<Double> readOnlySpan, Double value, int startIndex) => Gen.FindIndex(readOnlySpan, value, startIndex, readOnlySpan.Length);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int FindIndex(this ReadOnlySpan<Double> span, Double value, int startIndex, int count) => Gen.FindIndex(span, value, startIndex, count);
+        public static int FindIndex(this ReadOnlySpan<Double> readOnlySpan, Double value, int startIndex, int count) => Gen.FindIndex(readOnlySpan, value, startIndex, count);
 
         #endregion Double
     }
