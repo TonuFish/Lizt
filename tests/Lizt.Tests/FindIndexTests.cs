@@ -118,7 +118,6 @@ namespace Lizt.Tests
             // Arrange
             Shim.Replace(() => Avx2.IsSupported).With(() => false);
             Shim.Replace(() => Avx.IsSupported).With(() => false);
-            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
             Shim.Replace(() => Bmi1.IsSupported).With(() => false);
             
             int? result = null;
@@ -142,7 +141,6 @@ namespace Lizt.Tests
             // Arrange
             Shim.Replace(() => Avx2.IsSupported).With(() => false);
             Shim.Replace(() => Avx.IsSupported).With(() => false);
-            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
             Shim.Replace(() => Bmi1.IsSupported).With(() => false);
 
             int? result = null;
@@ -171,7 +169,6 @@ namespace Lizt.Tests
             Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
 
             // Arrange
-            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
             Shim.Replace(() => Bmi1.IsSupported).With(() => false);
 
             int? result = null;
@@ -193,7 +190,6 @@ namespace Lizt.Tests
             Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
 
             // Arrange
-            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
             Shim.Replace(() => Bmi1.IsSupported).With(() => false);
 
             int? result = null;
@@ -205,56 +201,6 @@ namespace Lizt.Tests
         }
 
 #endregion Vector256Tests
-
-#region LzcntTests
-
-        // TODO: Clean up these tests
-
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 30, 31 })]
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 31, 32 })]
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 32, 33 })]
-        [Theory(DisplayName = "Lzcnt: Returns correct index (Vector256)")]
-        [Trait("Category", "Lzcnt")]
-        public void Lzcnt_ReturnsCorrectIndexFromVector256(Func<int> methodCall, int[]? valueIndexes)
-        {
-            // Validate
-            Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
-            Lzcnt.IsSupported.Should().BeTrue("because it's required to test Lzcnt functions.");
-
-            // Arrange
-            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
-
-            int? result = null;
-            Action act = () => result = methodCall.Invoke();
-
-            // Act, Assert
-            act.Should().NotThrow("because the paramaters are valid.");
-            result.Should().Be(valueIndexes![0], "because it's the first occurrence of the search value.");
-        }
-
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 14, 15 })]
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 15, 16 })]
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 16, 17 })]
-        [Theory(DisplayName = "Lzcnt: Returns correct index (Vector128)")]
-        [Trait("Category", "Lzcnt")]
-        public void Lzcnt_ReturnsCorrectIndexFromVector128(Func<int> methodCall, int[]? valueIndexes)
-        {
-            // Validate
-            Sse41.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector128 implementations.");
-            Lzcnt.IsSupported.Should().BeTrue("because it's required to test Lzcnt functions.");
-
-            // Arrange
-            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
-
-            int? result = null;
-            Action act = () => result = methodCall.Invoke();
-
-            // Act, Assert
-            act.Should().NotThrow("because the paramaters are valid.");
-            result.Should().Be(valueIndexes![0], "because it's the first occurrence of the search value.");
-        }
-
-#endregion LzcntTests
 
 #region Bmi1Tests
 
@@ -272,8 +218,6 @@ namespace Lizt.Tests
             Bmi1.IsSupported.Should().BeTrue("because it's required to test Bmi1 functions.");
 
             // Arrange
-            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
-
             int? result = null;
             Action act = () => result = methodCall.Invoke();
 
@@ -294,8 +238,6 @@ namespace Lizt.Tests
             Bmi1.IsSupported.Should().BeTrue("because it's required to test Bmi1 functions.");
 
             // Arrange
-            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
-
             int? result = null;
             Action act = () => result = methodCall.Invoke();
 

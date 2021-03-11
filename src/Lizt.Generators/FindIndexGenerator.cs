@@ -180,7 +180,7 @@ $@"
              */
 
             string instructionSet256, compareEqual256, compareEqual256core;
-            string moveMask256, lzcntAction256, tzcntAction256, defaultAction256;
+            string moveMask256, tzcntAction256, defaultAction256;
             if (type is "Single" or "Double")
             {
                 instructionSet256 = "Avx";
@@ -188,7 +188,6 @@ $@"
                 compareEqual256core = $@"Avx.Compare(targetVector, loopVector, FloatComparisonMode.OrderedEqualNonSignaling);";
 
                 moveMask256 = @"Avx.MoveMask(matchVector);";
-                lzcntAction256 = $@"(int)Lzcnt.LeadingZeroCount((uint)moveMask) - {(type is "Single" ? "24" : "28")};";
                 tzcntAction256 = @"(int)Bmi1.TrailingZeroCount((uint)moveMask);";
                 defaultAction256 = $@"ParseOffsetFromMoveMask(moveMask, 1);";
             }
@@ -201,7 +200,6 @@ $@"
                 moveMask256 = type is "Byte" or "SByte"
                     ? @"Avx2.MoveMask(matchVector);"
                     : $@"Avx2.MoveMask(Unsafe.As<Vector256<{type}>, Vector256<Byte>>(ref matchVector));";
-                lzcntAction256 = $@"Vector256<{type}>.Count - ((int)Lzcnt.LeadingZeroCount((uint)moveMask) / sizeof({type})) - 1;";
                 tzcntAction256 = $@"(int)Bmi1.TrailingZeroCount((uint)moveMask) / sizeof({type});";
                 defaultAction256 = $@"ParseOffsetFromMoveMask(moveMask, sizeof({type}));";
             }
@@ -225,11 +223,7 @@ $@"
 
                         if (moveMask != 0)
                         {{
-                            if (Lzcnt.IsSupported)
-                            {{
-                                return index + {lzcntAction256}
-                            }}
-                            else if (Bmi1.IsSupported)
+                            if (Bmi1.IsSupported)
                             {{
                                 return index + {tzcntAction256}
                             }}
@@ -273,11 +267,10 @@ $@"
 
             var compareEqual128 = $@"{instructionSet128}.CompareEqual(targetVector, loopVector);";
 
-            string moveMask128, lzcntAction128, tzcntAction128, defaultAction128;
+            string moveMask128, tzcntAction128, defaultAction128;
             if (type is "Single" or "Double")
             {
                 moveMask128 = type is "Single" ? @"Sse.MoveMask(matchVector);" : @"Sse2.MoveMask(matchVector);";
-                lzcntAction128 = $@"(int)Lzcnt.LeadingZeroCount((uint)moveMask) - {(type is "Single" ? "28" : "30")};";
                 tzcntAction128 = @"(int)Bmi1.TrailingZeroCount((uint)moveMask);";
                 defaultAction128 = $@"ParseOffsetFromMoveMask(moveMask, 1);";
             }
@@ -286,7 +279,6 @@ $@"
                 moveMask128 = type is "Byte" or "SByte"
                     ? @"Sse2.MoveMask(matchVector);"
                     : $@"Sse2.MoveMask(Unsafe.As<Vector128<{type}>, Vector128<Byte>>(ref matchVector));";
-                lzcntAction128 = $@"Vector128<{type}>.Count - ((int)Lzcnt.LeadingZeroCount((uint)moveMask) / sizeof({type})) - 1 - Vec128MoveMaskOffset;";
                 tzcntAction128 = $@"(int)Bmi1.TrailingZeroCount((uint)moveMask) / sizeof({type});";
                 defaultAction128 = $@"ParseOffsetFromMoveMask(moveMask, sizeof({type}));";
             }
@@ -306,11 +298,7 @@ $@"
 
                         if (moveMask != 0)
                         {{
-                            if (Lzcnt.IsSupported)
-                            {{
-                                return index + {lzcntAction128}
-                            }}
-                            else if (Bmi1.IsSupported)
+                            if (Bmi1.IsSupported)
                             {{
                                 return index + {tzcntAction128}
                             }}
