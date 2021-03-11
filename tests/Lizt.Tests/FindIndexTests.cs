@@ -1,141 +1,426 @@
 using System;
+using System.Runtime.Intrinsics.X86;
 using FluentAssertions;
 using Lizt.Extensions;
+using Pose;
 using Xunit;
 
 namespace Lizt.Tests
 {
     public class FindIndexTests
     {
-        [MemberData(nameof(TestData), 0, 0, 0, null)]
+        private const int NotFound = -1;
+
+#region ParameterTests
+
+        [MemberData(nameof(ParameterTestData), 0, 0, 0)]
         [Theory(DisplayName = "Parameters: Throws when source is empty")]
+        [Trait("Category", "Parameter")]
         public void Parameters_ThrowsWhenSourceIsEmpty(Func<int> methodCall)
         {
-            methodCall.Should().Throw<Exception>();
+            methodCall.Should().Throw<Exception>("because the source contained no elements.");
         }
 
-        [MemberData(nameof(TestData), 1, -1, 0, null)]
-        [MemberData(nameof(TestData), 1, 1, 0, null)]
+        [MemberData(nameof(ParameterTestData), 1, -1, 0)]
+        [MemberData(nameof(ParameterTestData), 1, 1, 0)]
         [Theory(DisplayName = "Parameters: Throws when start index is out of range")]
+        [Trait("Category", "Parameter")]
         public void Parameters_ThrowsWhenStartIndexOutOfRange(Func<int> methodCall)
         {
-            methodCall.Should().Throw<ArgumentOutOfRangeException>().And.ParamName.Should().Be("startIndex");
+            methodCall.Should().Throw<ArgumentOutOfRangeException>("because startIndex was negative or g.t.e. source.Length.")
+                .And.ParamName.Should().Be("startIndex");
         }
 
-        [MemberData(nameof(TestData), 1, 0, 0, null)]
-        [MemberData(nameof(TestData), 1, 0, 2, null)]
+        [MemberData(nameof(ParameterTestData), 1, 0, 0)]
+        [MemberData(nameof(ParameterTestData), 1, 0, 2)]
         [Theory(DisplayName = "Parameters: Throws when count is out of range")]
+        [Trait("Category", "Parameter")]
         public void Parameters_ThrowsWhenCountOutOfRange(Func<int> methodCall)
         {
-            methodCall.Should().Throw<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
+            methodCall.Should().Throw<ArgumentOutOfRangeException>("because count was not positive or (count+startIndex) g.t. source.Length")
+                .And.ParamName.Should().Be("count");
         }
 
-        // TODO: Get valueIndex into test body to assert with
-        //[MemberData(nameof(TestData), 100, 0, 100, 31)]
-        //[MemberData(nameof(TestData), 100, 0, 100, 32)]
-        //[MemberData(nameof(TestData), 100, 0, 100, 33)]
-        //[Theory(DisplayName = "Result: Finds value on width boundary")]
-        //public void Result_FindsValueOnWidthBoundary(Func<int> methodCall)
-        //{
-        //    // Arrange
-        //    int? result = null;
-        //    Action act = () => result = methodCall.Invoke();
+#endregion ParameterTests
 
-        //    // Assert
-        //    act.Should().NotThrow();
-        //    result.Should().Be(48);
-        //}
+#region ManualLoopTests
 
-        [MemberData(nameof(TestData), 100, 0, 100, 33)]
-        [Theory(DisplayName = "Result: Finds value in odd position")]
-        public void Result_FindsValueInOddPosition(Func<int> methodCall)
+        // TODO: Clean up these tests
+
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 14, 15 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 15, 16 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 16, 17 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 30, 31 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 31, 32 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 32, 33 })]
+        [Theory(DisplayName = "ManualLoop: Finds value on width boundary")]
+        [Trait("Category", "ManualLoop")]
+        public void ManualLoop_FindsFirstValueOnWidthBoundary(Func<int> methodCall, int[]? valueIndexes)
         {
-            // TODO: Remove temp test
             // Arrange
+            Shim.Replace(() => Avx2.IsSupported).With(() => false);
+            Shim.Replace(() => Avx.IsSupported).With(() => false);
+            Shim.Replace(() => Sse42.IsSupported).With(() => false);
+            Shim.Replace(() => Sse41.IsSupported).With(() => false);
+            Shim.Replace(() => Sse3.IsSupported).With(() => false);
+            Shim.Replace(() => Sse2.IsSupported).With(() => false);
+            Shim.Replace(() => Sse.IsSupported).With(() => false);
+
             int? result = null;
             Action act = () => result = methodCall.Invoke();
 
-            // Assert
-            act.Should().NotThrow();
-            result.Should().Be(33);
-
-            // Need fakes for this, might have to swap to VS2019-preview :\
-            //System.Runtime.Intrinsics.X86.Avx.IsSupported.Should().
+            // Act, Assert
+            act.Should().NotThrow("because the paramaters are valid.");
+            result.Should().Be(valueIndexes![0], "because it's the first occurrence of the search value.");
         }
 
-        [MemberData(nameof(TestData), 100, 0, 100, null)]
-        [Theory(DisplayName = "Result: Returns not found when value missing")]
-        public void Result_ReturnsNotFoundWhenValueMissing(Func<int> methodCall)
+        [MemberData(nameof(RunTestData), 100, 0, 100, null)]
+        [Theory(DisplayName = "ManualLoop: Returns not found when value missing")]
+        [Trait("Category", "ManualLoop")]
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
+        public void ManualLoop_ReturnsNotFoundWhenValueMissing(Func<int> methodCall, int[]? valueIndexes)
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
             // Arrange
-            const int NotFound = -1;
+            Shim.Replace(() => Avx2.IsSupported).With(() => false);
+            Shim.Replace(() => Avx.IsSupported).With(() => false);
+            Shim.Replace(() => Sse42.IsSupported).With(() => false);
+            Shim.Replace(() => Sse41.IsSupported).With(() => false);
+            Shim.Replace(() => Sse3.IsSupported).With(() => false);
+            Shim.Replace(() => Sse2.IsSupported).With(() => false);
+            Shim.Replace(() => Sse.IsSupported).With(() => false);
+
             int? result = null;
             Action act = () => result = methodCall.Invoke();
 
-            // Assert
-            act.Should().NotThrow();
-            result.Should().Be(NotFound);
+            // Act, Assert
+            act.Should().NotThrow("because the paramaters are valid.");
+            result.Should().Be(NotFound, "because the search value is not present.");
         }
 
-        public static TheoryData<Func<int>> TestData(int length, int startIndex, int count, int? valueIndex)
+#endregion ManualLoopTests
+
+#region Vector128Tests
+
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 14, 15 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 15, 16 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 16, 17 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 30, 31 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 31, 32 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 32, 33 })]
+        [Theory(DisplayName = "Vector128: Finds value on width boundary")]
+        [Trait("Category", "Vector128")]
+        public void Vector128_FindsFirstValueOnWidthBoundary(Func<int> methodCall, int[]? valueIndexes)
         {
-            // TODO: This should really be cleaned up... maybe use MakeGenericMethod reflection, unsafe* returns?
-            // Entire method is clunky, but readable? "Works" for now.
-            // Using the same array for all 3 methods of each T is also bad.
+            // Validate
+            Sse41.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector128 implementations.");
 
-            var bytes = CreateDataSource<Byte>(Byte.MaxValue);
-            var sbytes = CreateDataSource<SByte>(SByte.MaxValue);
-            var int16s = CreateDataSource<Int16>(Int16.MaxValue);
-            var uint16s = CreateDataSource<UInt16>(UInt16.MaxValue);
-            var int32s = CreateDataSource<Int32>(Int32.MaxValue);
-            var uint32s = CreateDataSource<UInt32>(UInt32.MaxValue);
-            var int64s = CreateDataSource<Int64>(Int64.MaxValue);
-            var uint64s = CreateDataSource<UInt64>(UInt64.MaxValue);
-            var singles = CreateDataSource<Single>(Single.MaxValue);
-            var doubles = CreateDataSource<Double>(Double.MaxValue);
+            // Arrange
+            Shim.Replace(() => Avx2.IsSupported).With(() => false);
+            Shim.Replace(() => Avx.IsSupported).With(() => false);
+            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
+            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
+            
+            int? result = null;
+            Action act = () => result = methodCall.Invoke();
 
-            return new TheoryData<Func<int>>
+            // Act, Assert
+            act.Should().NotThrow("because the paramaters are valid.");
+            result.Should().Be(valueIndexes![0], "because it's the first occurrence of the search value.");
+        }
+
+        [MemberData(nameof(RunTestData), 100, 0, 100, null)]
+        [Theory(DisplayName = "Vector128: Returns not found when value missing")]
+        [Trait("Category", "Vector128")]
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
+        public void Vector128_ReturnsNotFoundWhenValueMissing(Func<int> methodCall, int[]? valueIndexes)
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        {
+            // Validate
+            Sse41.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector128 implementations.");
+
+            // Arrange
+            Shim.Replace(() => Avx2.IsSupported).With(() => false);
+            Shim.Replace(() => Avx.IsSupported).With(() => false);
+            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
+            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
+
+            int? result = null;
+            Action act = () => result = methodCall.Invoke();
+
+            // Act, Assert
+            act.Should().NotThrow("because the paramaters are valid.");
+            result.Should().Be(NotFound, "because the search value is not present.");
+        }
+
+#endregion Vector128Tests
+
+#region Vector256Tests
+
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 30, 31 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 31, 32 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 32, 33 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 62, 63 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 63, 64 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 64, 65 })]
+        [Theory(DisplayName = "Vector256: Finds value on width boundary")]
+        [Trait("Category", "Vector256")]
+        public void Vector256_FindsFirstValueOnWidthBoundary(Func<int> methodCall, int[]? valueIndexes)
+        {
+            // Validate
+            Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
+
+            // Arrange
+            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
+            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
+
+            int? result = null;
+            Action act = () => result = methodCall.Invoke();
+
+            // Act, Assert
+            act.Should().NotThrow("because the paramaters are valid.");
+            result.Should().Be(valueIndexes![0], "because it's the first occurrence of the search value.");
+        }
+
+        [MemberData(nameof(RunTestData), 100, 0, 100, null)]
+        [Theory(DisplayName = "Vector256: Returns not found when value missing")]
+        [Trait("Category", "Vector256")]
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
+        public void Vector256_ReturnsNotFoundWhenValueMissing(Func<int> methodCall, int[]? valueIndexes)
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        {
+            // Validate
+            Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
+
+            // Arrange
+            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
+            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
+
+            int? result = null;
+            Action act = () => result = methodCall.Invoke();
+
+            // Act, Assert
+            act.Should().NotThrow("because the paramaters are valid.");
+            result.Should().Be(NotFound, "because the search value is not present.");
+        }
+
+#endregion Vector256Tests
+
+#region LzcntTests
+
+        // TODO: Clean up these tests
+
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 30, 31 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 31, 32 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 32, 33 })]
+        [Theory(DisplayName = "Lzcnt: Returns correct index (Vector256)")]
+        [Trait("Category", "Lzcnt")]
+        public void Lzcnt_ReturnsCorrectIndexFromVector256(Func<int> methodCall, int[]? valueIndexes)
+        {
+            // Validate
+            Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
+            Lzcnt.IsSupported.Should().BeTrue("because it's required to test Lzcnt functions.");
+
+            // Arrange
+            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
+
+            int? result = null;
+            Action act = () => result = methodCall.Invoke();
+
+            // Act, Assert
+            act.Should().NotThrow("because the paramaters are valid.");
+            result.Should().Be(valueIndexes![0], "because it's the first occurrence of the search value.");
+        }
+
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 14, 15 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 15, 16 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 16, 17 })]
+        [Theory(DisplayName = "Lzcnt: Returns correct index (Vector128)")]
+        [Trait("Category", "Lzcnt")]
+        public void Lzcnt_ReturnsCorrectIndexFromVector128(Func<int> methodCall, int[]? valueIndexes)
+        {
+            // Validate
+            Sse41.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector128 implementations.");
+            Lzcnt.IsSupported.Should().BeTrue("because it's required to test Lzcnt functions.");
+
+            // Arrange
+            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
+
+            int? result = null;
+            Action act = () => result = methodCall.Invoke();
+
+            // Act, Assert
+            act.Should().NotThrow("because the paramaters are valid.");
+            result.Should().Be(valueIndexes![0], "because it's the first occurrence of the search value.");
+        }
+
+#endregion LzcntTests
+
+#region Bmi1Tests
+
+        // TODO: Clean up these tests
+
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 30, 31 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 31, 32 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 32, 33 })]
+        [Theory(DisplayName = "Bmi1: Returns correct index (Vector256)")]
+        [Trait("Category", "Bmi1")]
+        public void Bmi1_ReturnsCorrectIndexFromVector256(Func<int> methodCall, int[]? valueIndexes)
+        {
+            // Validate
+            Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
+            Bmi1.IsSupported.Should().BeTrue("because it's required to test Bmi1 functions.");
+
+            // Arrange
+            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
+
+            int? result = null;
+            Action act = () => result = methodCall.Invoke();
+
+            // Act, Assert
+            act.Should().NotThrow("because the paramaters are valid.");
+            result.Should().Be(valueIndexes![0], "because it's the first occurrence of the search value.");
+        }
+
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 14, 15 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 15, 16 })]
+        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 16, 17 })]
+        [Theory(DisplayName = "Bmi1: Returns correct index (Vector128)")]
+        [Trait("Category", "Bmi1")]
+        public void Bmi1_ReturnsCorrectIndexFromVector128(Func<int> methodCall, int[]? valueIndexes)
+        {
+            // Validate
+            Sse41.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector128 implementations.");
+            Bmi1.IsSupported.Should().BeTrue("because it's required to test Bmi1 functions.");
+
+            // Arrange
+            Shim.Replace(() => Lzcnt.IsSupported).With(() => false);
+
+            int? result = null;
+            Action act = () => result = methodCall.Invoke();
+
+            // Act, Assert
+            act.Should().NotThrow("because the paramaters are valid.");
+            result.Should().Be(valueIndexes![0], "because it's the first occurrence of the search value.");
+        }
+
+#endregion Bmi1Tests
+
+#region ArrangeTheoryData
+
+        public static TheoryData<Func<int>> ParameterTestData(int length, int startIndex, int count)
+        {
+            var theoryData = new TheoryData<Func<int>>();
+            PopulateTheoryData(length, startIndex, count, AddTheoryData);
+            return theoryData;
+
+            void AddTheoryData(Func<int> func) => theoryData.Add(func);
+        }
+
+        public static TheoryData<Func<int>, int[]?> RunTestData(int length, int startIndex, int count, int[]? valueIndexes)
+        {
+            var theoryData = new TheoryData<Func<int>, int[]?>();
+            PopulateTheoryData(length, startIndex, count, AddTheoryData, valueIndexes);
+            return theoryData;
+
+            void AddTheoryData(Func<int> func) => theoryData.Add(func, valueIndexes);
+        }
+
+        private static void PopulateTheoryData(int length, int startIndex, int count, Action<Func<int>> addTheoryData, int[]? valueIndexes = null)
+        {
+            // TODO: This is **really** ugly. Fix this at some point.
+
             {
-                () => bytes.Array_.FindIndex(Byte.MaxValue, startIndex, count),
-                () => bytes.S.Span.FindIndex(Byte.MaxValue, startIndex, count),
-                () => bytes.R.Span.FindIndex(Byte.MaxValue, startIndex, count),
-                () => sbytes.Array_.FindIndex(SByte.MaxValue, startIndex, count),
-                () => sbytes.S.Span.FindIndex(SByte.MaxValue, startIndex, count),
-                () => sbytes.R.Span.FindIndex(SByte.MaxValue, startIndex, count),
-                () => int16s.Array_.FindIndex(Int16.MaxValue, startIndex, count),
-                () => int16s.S.Span.FindIndex(Int16.MaxValue, startIndex, count),
-                () => int16s.R.Span.FindIndex(Int16.MaxValue, startIndex, count),
-                () => uint16s.Array_.FindIndex(UInt16.MaxValue, startIndex, count),
-                () => uint16s.S.Span.FindIndex(UInt16.MaxValue, startIndex, count),
-                () => uint16s.R.Span.FindIndex(UInt16.MaxValue, startIndex, count),
-                () => int32s.Array_.FindIndex(Int32.MaxValue, startIndex, count),
-                () => int32s.S.Span.FindIndex(Int32.MaxValue, startIndex, count),
-                () => int32s.R.Span.FindIndex(Int32.MaxValue, startIndex, count),
-                () => uint32s.Array_.FindIndex(UInt32.MaxValue, startIndex, count),
-                () => uint32s.S.Span.FindIndex(UInt32.MaxValue, startIndex, count),
-                () => uint32s.R.Span.FindIndex(UInt32.MaxValue, startIndex, count),
-                () => int64s.Array_.FindIndex(Int64.MaxValue, startIndex, count),
-                () => int64s.S.Span.FindIndex(Int64.MaxValue, startIndex, count),
-                () => int64s.R.Span.FindIndex(Int64.MaxValue, startIndex, count),
-                () => uint64s.Array_.FindIndex(UInt64.MaxValue, startIndex, count),
-                () => uint64s.S.Span.FindIndex(UInt64.MaxValue, startIndex, count),
-                () => uint64s.R.Span.FindIndex(UInt64.MaxValue, startIndex, count),
-                () => singles.Array_.FindIndex(Single.MaxValue, startIndex, count),
-                () => singles.S.Span.FindIndex(Single.MaxValue, startIndex, count),
-                () => singles.R.Span.FindIndex(Single.MaxValue, startIndex, count),
-                () => doubles.Array_.FindIndex(Double.MaxValue, startIndex, count),
-                () => doubles.S.Span.FindIndex(Double.MaxValue, startIndex, count),
-                () => doubles.R.Span.FindIndex(Double.MaxValue, startIndex, count),
-            };
+                var (a1, a2, a3) = SupplyArrays<Byte>(length, valueIndexes, Byte.MaxValue);
+                addTheoryData.Invoke(() => a1.FindIndex(Byte.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => a2.AsSpan().FindIndex(Byte.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => ((ReadOnlySpan<Byte>)a3.AsSpan()).FindIndex(Byte.MaxValue, startIndex, count));
+            }
 
-            // Array_; underscore used to match width of S.Span / R.Span
-            (T[] Array_, Memory<T> S, ReadOnlyMemory<T> R) CreateDataSource<T>(T value) where T : struct
             {
-                var source = new T[length];
-                if (valueIndex.HasValue)
-                { source[valueIndex!.Value] = value; }
-                return (source, source.AsMemory(), (ReadOnlyMemory<T>)source.AsMemory());
+                var (a1, a2, a3) = SupplyArrays<SByte>(length, valueIndexes, SByte.MaxValue);
+                addTheoryData.Invoke(() => a1.FindIndex(SByte.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => a2.AsSpan().FindIndex(SByte.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => ((ReadOnlySpan<SByte>)a3.AsSpan()).FindIndex(SByte.MaxValue, startIndex, count));
+            }
+
+            {
+                var (a1, a2, a3) = SupplyArrays<Int16>(length, valueIndexes, Int16.MaxValue);
+                addTheoryData.Invoke(() => a1.FindIndex(Int16.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => a2.AsSpan().FindIndex(Int16.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => ((ReadOnlySpan<Int16>)a3.AsSpan()).FindIndex(Int16.MaxValue, startIndex, count));
+            }
+
+            {
+                var (a1, a2, a3) = SupplyArrays<UInt16>(length, valueIndexes, UInt16.MaxValue);
+                addTheoryData.Invoke(() => a1.FindIndex(UInt16.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => a2.AsSpan().FindIndex(UInt16.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => ((ReadOnlySpan<UInt16>)a3.AsSpan()).FindIndex(UInt16.MaxValue, startIndex, count));
+            }
+
+            {
+                var (a1, a2, a3) = SupplyArrays<Int32>(length, valueIndexes, Int32.MaxValue);
+                addTheoryData.Invoke(() => a1.FindIndex(Int32.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => a2.AsSpan().FindIndex(Int32.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => ((ReadOnlySpan<Int32>)a3.AsSpan()).FindIndex(Int32.MaxValue, startIndex, count));
+            }
+
+            {
+                var (a1, a2, a3) = SupplyArrays<UInt32>(length, valueIndexes, UInt32.MaxValue);
+                addTheoryData.Invoke(() => a1.FindIndex(UInt32.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => a2.AsSpan().FindIndex(UInt32.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => ((ReadOnlySpan<UInt32>)a3.AsSpan()).FindIndex(UInt32.MaxValue, startIndex, count));
+            }
+
+            {
+                var (a1, a2, a3) = SupplyArrays<Int64>(length, valueIndexes, Int64.MaxValue);
+                addTheoryData.Invoke(() => a1.FindIndex(Int64.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => a2.AsSpan().FindIndex(Int64.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => ((ReadOnlySpan<Int64>)a3.AsSpan()).FindIndex(Int64.MaxValue, startIndex, count));
+            }
+
+            {
+                var (a1, a2, a3) = SupplyArrays<UInt64>(length, valueIndexes, UInt64.MaxValue);
+                addTheoryData.Invoke(() => a1.FindIndex(UInt64.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => a2.AsSpan().FindIndex(UInt64.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => ((ReadOnlySpan<UInt64>)a3.AsSpan()).FindIndex(UInt64.MaxValue, startIndex, count));
+            }
+
+            {
+                var (a1, a2, a3) = SupplyArrays<Single>(length, valueIndexes, Single.MaxValue);
+                addTheoryData.Invoke(() => a1.FindIndex(Single.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => a2.AsSpan().FindIndex(Single.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => ((ReadOnlySpan<Single>)a3.AsSpan()).FindIndex(Single.MaxValue, startIndex, count));
+            }
+
+            {
+                var (a1, a2, a3) = SupplyArrays<Double>(length, valueIndexes, Double.MaxValue);
+                addTheoryData.Invoke(() => a1.FindIndex(Double.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => a2.AsSpan().FindIndex(Double.MaxValue, startIndex, count));
+                addTheoryData.Invoke(() => ((ReadOnlySpan<Double>)a3.AsSpan()).FindIndex(Double.MaxValue, startIndex, count));
             }
         }
+
+        private static (T[] A1, T[] A2, T[] A3) SupplyArrays<T>(int length, int[]? valueIndexes, T value = default) where T : struct
+        {
+            var array1 = new T[length];
+            var array2 = new T[length];
+            var array3 = new T[length];
+
+            if (valueIndexes is not null)
+            {
+                foreach (var index in valueIndexes)
+                {
+                    // Not ideal
+                    array1[index] = value;
+                    array2[index] = value;
+                    array3[index] = value;
+                }
+            }
+
+            return (array1, array2, array3);
+        }
+
+#endregion ArrangeTheoryData
     }
 }
