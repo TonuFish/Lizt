@@ -13,9 +13,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Lizt.Generators\Lizt.Generators.csproj"
-							ReferenceOutputAssembly="false"
-							OutputItemType="Analyzer"/>
+		<ProjectReference Include="..\Lizt.Generators\Lizt.Generators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
 	</ItemGroup>
 
 </Project>

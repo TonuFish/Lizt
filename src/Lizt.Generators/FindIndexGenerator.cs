@@ -8,9 +8,9 @@ namespace Lizt.Generators
     public class FindIndexGenerator : ISourceGenerator
     {
         private const string HintName = "Lizt.Generated.FindIndex.g.cs";
+        private const int NotFoundValue = -1;
 
-        // TODO: See if there's a performance hit to changing this structure to something more
-        // engineered (instead of a bunch of strings)
+        // TODO: Engineer this a bit more... Dictionary<struct>(128|256, type), struct containing method strings
         private static readonly string[] _hardwareTypes = new string[]
         {
             "Byte",
@@ -41,11 +41,10 @@ namespace Lizt.Generators
             //System.Diagnostics.Debugger.Launch();
             //System.Diagnostics.Debugger.Break();
 
-            var sb = new StringBuilder(capacity: 135_000); // 134,397 total
+            var sb = new StringBuilder(capacity: 100_000); // 99,836 total
 
             GenerateClassHeader(sb);
             GenerateFields(sb);
-            GenerateSharedMethods(sb);
 
             foreach (var type in _hardwareTypes)
             {
@@ -55,12 +54,12 @@ namespace Lizt.Generators
                 }
             }
 
-            // Remove spacing newline from method group
+            // Remove spacing newline from last method group
             sb.Length -= System.Environment.NewLine.Length;
 
             GenerateClassFooter(sb);
 
-            // Generate this code please
+            // Generate file please
             context.AddSource(HintName, sb.ToString());
         }
 
@@ -72,13 +71,14 @@ namespace Lizt.Generators
             sb.Append(
 @"using System;
 using System.CodeDom.Compiler;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 
 namespace Lizt.Generated.FindIndex
 {
-    [GeneratedCodeAttribute(""LiztFindIndexGenerator"", ""0.7.0"")]
+    [GeneratedCodeAttribute(""LiztFindIndexGenerator"", ""0.7.0-alpha"")]
     internal static class Gen
     {
 ");
@@ -87,27 +87,7 @@ namespace Lizt.Generated.FindIndex
         private void GenerateFields(StringBuilder sb)
         {
             sb.Append(
-@"        private const int NotFound = -1;
-        private const int Vec128MoveMaskOffset = 16;
-");
-        }
-
-        private void GenerateSharedMethods(StringBuilder sb)
-        {
-            sb.Append(
-@"
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int ParseOffsetFromMoveMask(int moveMask, int typeSize)
-        {
-            var shiftCount = 0;
-            while ((moveMask & 1) == 0)
-            {
-                moveMask >>= typeSize;
-                ++shiftCount;
-            }
-
-            return shiftCount;
-        }
+$@"        private const int NotFound = {NotFoundValue};
 
 ");
         }
@@ -162,46 +142,61 @@ $@"
              * | double | Avx  |    Avx       |   Avx    |    Avx      |
              * 
              * Exception (.NET Core 3.x)
-             * There's no support for CompareEqual using float or double arguments under .NET Core,
-             * therefore Vector256's cannot be used.
-             * Not sure why, but it's inconvenient.
+             * There's no wrapper for CompareEqual->Compare using float or double arguments under .NET Core.
              * 
-             * This is wrong, just the compare equal overload doesn't exist. Explain "compareEqual256core".
-             * It's solved now. Yay.
-             */
-
-            /*
-             * 256
-             * Single : 128, 64, 32, 16, 8, 4, 2, 1 = -24
-             * Double : 8, 4, 2, 1 = -28
-             * 128
-             * Single : 8, 4, 2, 1 = -28
-             * Double : 2, 1 = -30
+             * .NET 5 CompareEqual: "The above native signature does not exist. We provide this additional overload for completeness."
+             * Doc: https://docs.microsoft.com/en-us/dotnet/api/system.runtime.intrinsics.x86.avx.compareequal?view=net-5.0
+             * Impementation: https://source.dot.net/#System.Private.CoreLib/Avx.cs,0fb121b6f85b7c70
+             * 
+             * t.f. compareEqual256core uses the above implementation manually.
              */
 
             string instructionSet256, compareEqual256, compareEqual256core;
-            string moveMask256, tzcntAction256, defaultAction256;
+            string moveMask256, tzcnt256;
             if (type is "Single" or "Double")
             {
                 instructionSet256 = "Avx";
-                compareEqual256 = $@"Avx.CompareEqual(targetVector, loopVector);";
-                compareEqual256core = $@"Avx.Compare(targetVector, loopVector, FloatComparisonMode.OrderedEqualNonSignaling);";
+                compareEqual256 = "Avx.CompareEqual(targetVector, loopVector);";
+                compareEqual256core = "Avx.Compare(targetVector, loopVector, FloatComparisonMode.OrderedEqualNonSignaling);";
 
-                moveMask256 = @"Avx.MoveMask(matchVector);";
-                tzcntAction256 = @"(int)Bmi1.TrailingZeroCount((uint)moveMask);";
-                defaultAction256 = $@"ParseOffsetFromMoveMask(moveMask, 1);";
+                // MoveMask supports float and double as parameters, so no extra handling is required
+                moveMask256 = "Avx.MoveMask(matchVector);";
+                tzcnt256 = "BitOperations.TrailingZeroCount(moveMask);";
             }
             else
             {
                 instructionSet256 = "Avx2";
-                compareEqual256 = $@"Avx2.CompareEqual(targetVector, loopVector);";
-                compareEqual256core = $@"Avx2.CompareEqual(targetVector, loopVector);";
+
+                /* CompareEqual returns a Vector256<T> with all bits set where the input vectors match.
+                 * 
+                 * For example, the below Int64 comparison:
+                 * param1: <  0,  9,  4,  9  >
+                 * param2: <  9,  9,  9,  9  >
+                 * return: <  0, -1,  0, -1  >
+                 */
+                compareEqual256 = "Avx2.CompareEqual(targetVector, loopVector);";
+                compareEqual256core = "Avx2.CompareEqual(targetVector, loopVector);";
 
                 moveMask256 = type is "Byte" or "SByte"
-                    ? @"Avx2.MoveMask(matchVector);"
-                    : $@"Avx2.MoveMask(Unsafe.As<Vector256<{type}>, Vector256<Byte>>(ref matchVector));";
-                tzcntAction256 = $@"(int)Bmi1.TrailingZeroCount((uint)moveMask) / sizeof({type});";
-                defaultAction256 = $@"ParseOffsetFromMoveMask(moveMask, sizeof({type}));";
+                    ? "Avx2.MoveMask(matchVector);"
+                    : $"Avx2.MoveMask(Unsafe.As<Vector256<{type}>, Vector256<Byte>>(ref matchVector));";
+
+                /* Tzcnt must account for the cast to byte used in MoveMask.
+                 * 
+                 * For example; if an int match is found in position 7 (of 0:7), CompareEqual returns:
+                 * <0, 0, 0, 0, 0, 0, 0, -1>
+                 * 
+                 * As MoveMask doesn't have an int overload, it is easiest to re-interpret the result as bytes.
+                 * Hence, it now appears as if CompareEqual found 4 matches, at 28, 29, 30, 31 (of 0:31)
+                 * <0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1>
+                 * 
+                 * MoveMask interprets this as (int) -268435456, byte representation:
+                 * 1111_0000_0000_0000_0000_0000_0000_0000
+                 * 
+                 * TrailingZeroCount correctly returns 28.
+                 * Dividing this by the byte width of int returns the correct offset (28 / 4 = 7)
+                 */
+                tzcnt256 = $"(BitOperations.TrailingZeroCount(moveMask) / sizeof({type}));";
             }
 
             sb.Append(
@@ -223,14 +218,7 @@ $@"
 
                         if (moveMask != 0)
                         {{
-                            if (Bmi1.IsSupported)
-                            {{
-                                return index + {tzcntAction256}
-                            }}
-                            else
-                            {{
-                                return index + {defaultAction256}
-                            }}
+                            return index + {tzcnt256}
                         }}
                         else
                         {{
@@ -265,22 +253,21 @@ $@"
                 _ => "Sse2"
             };
 
-            var compareEqual128 = $@"{instructionSet128}.CompareEqual(targetVector, loopVector);";
+            var compareEqual128 = $"{instructionSet128}.CompareEqual(targetVector, loopVector);";
 
-            string moveMask128, tzcntAction128, defaultAction128;
+            string moveMask128, tzcnt128;
             if (type is "Single" or "Double")
             {
-                moveMask128 = type is "Single" ? @"Sse.MoveMask(matchVector);" : @"Sse2.MoveMask(matchVector);";
-                tzcntAction128 = @"(int)Bmi1.TrailingZeroCount((uint)moveMask);";
-                defaultAction128 = $@"ParseOffsetFromMoveMask(moveMask, 1);";
+                moveMask128 = type is "Single" ? "Sse.MoveMask(matchVector);" : "Sse2.MoveMask(matchVector);";
+                tzcnt128 = "BitOperations.TrailingZeroCount(moveMask);";
             }
             else
             {
                 moveMask128 = type is "Byte" or "SByte"
-                    ? @"Sse2.MoveMask(matchVector);"
-                    : $@"Sse2.MoveMask(Unsafe.As<Vector128<{type}>, Vector128<Byte>>(ref matchVector));";
-                tzcntAction128 = $@"(int)Bmi1.TrailingZeroCount((uint)moveMask) / sizeof({type});";
-                defaultAction128 = $@"ParseOffsetFromMoveMask(moveMask, sizeof({type}));";
+                    ? "Sse2.MoveMask(matchVector);"
+                    : $"Sse2.MoveMask(Unsafe.As<Vector128<{type}>, Vector128<Byte>>(ref matchVector));";
+                // Refer to explanation above tzcnt256
+                tzcnt128 = $"(BitOperations.TrailingZeroCount(moveMask) / sizeof({type}));";
             }
 
             sb.Append(
@@ -298,14 +285,7 @@ $@"
 
                         if (moveMask != 0)
                         {{
-                            if (Bmi1.IsSupported)
-                            {{
-                                return index + {tzcntAction128}
-                            }}
-                            else
-                            {{
-                                return index + {defaultAction128}
-                            }}
+                            return index + {tzcnt128}
                         }}
                         else
                         {{
@@ -327,7 +307,7 @@ $@"
                 }
 ");
 
-            // Default return, close pin and method
+            // Default return, release pin and close method
             sb.Append(
 @"
                 return NotFound;

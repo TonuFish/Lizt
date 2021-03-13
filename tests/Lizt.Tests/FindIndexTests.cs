@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.Intrinsics.X86;
 using FluentAssertions;
+using Ionad;
 using Lizt.Extensions;
-using Pose;
 using Xunit;
 
 namespace Lizt.Tests
@@ -10,6 +10,8 @@ namespace Lizt.Tests
     public class FindIndexTests
     {
         private const int NotFound = -1;
+
+        // TODO: All test methods need a rejigg given Fody and removal of Lzcnt and Bmi1
 
 #region ParameterTests
 
@@ -58,14 +60,6 @@ namespace Lizt.Tests
         public void ManualLoop_FindsFirstValueOnWidthBoundary(Func<int> methodCall, int[]? valueIndexes)
         {
             // Arrange
-            Shim.Replace(() => Avx2.IsSupported).With(() => false);
-            Shim.Replace(() => Avx.IsSupported).With(() => false);
-            Shim.Replace(() => Sse42.IsSupported).With(() => false);
-            Shim.Replace(() => Sse41.IsSupported).With(() => false);
-            Shim.Replace(() => Sse3.IsSupported).With(() => false);
-            Shim.Replace(() => Sse2.IsSupported).With(() => false);
-            Shim.Replace(() => Sse.IsSupported).With(() => false);
-
             int? result = null;
             Action act = () => result = methodCall.Invoke();
 
@@ -82,14 +76,6 @@ namespace Lizt.Tests
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
             // Arrange
-            Shim.Replace(() => Avx2.IsSupported).With(() => false);
-            Shim.Replace(() => Avx.IsSupported).With(() => false);
-            Shim.Replace(() => Sse42.IsSupported).With(() => false);
-            Shim.Replace(() => Sse41.IsSupported).With(() => false);
-            Shim.Replace(() => Sse3.IsSupported).With(() => false);
-            Shim.Replace(() => Sse2.IsSupported).With(() => false);
-            Shim.Replace(() => Sse.IsSupported).With(() => false);
-
             int? result = null;
             Action act = () => result = methodCall.Invoke();
 
@@ -116,10 +102,6 @@ namespace Lizt.Tests
             Sse41.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector128 implementations.");
 
             // Arrange
-            Shim.Replace(() => Avx2.IsSupported).With(() => false);
-            Shim.Replace(() => Avx.IsSupported).With(() => false);
-            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
-            
             int? result = null;
             Action act = () => result = methodCall.Invoke();
 
@@ -139,10 +121,6 @@ namespace Lizt.Tests
             Sse41.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector128 implementations.");
 
             // Arrange
-            Shim.Replace(() => Avx2.IsSupported).With(() => false);
-            Shim.Replace(() => Avx.IsSupported).With(() => false);
-            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
-
             int? result = null;
             Action act = () => result = methodCall.Invoke();
 
@@ -169,8 +147,6 @@ namespace Lizt.Tests
             Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
 
             // Arrange
-            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
-
             int? result = null;
             Action act = () => result = methodCall.Invoke();
 
@@ -190,8 +166,6 @@ namespace Lizt.Tests
             Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
 
             // Arrange
-            Shim.Replace(() => Bmi1.IsSupported).With(() => false);
-
             int? result = null;
             Action act = () => result = methodCall.Invoke();
 
@@ -202,51 +176,23 @@ namespace Lizt.Tests
 
 #endregion Vector256Tests
 
-#region Bmi1Tests
+#region IonadFody
 
-        // TODO: Clean up these tests
+        // TODO: Figure how to handle these, compile time IF? Different test groups, different configurations?
 
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 30, 31 })]
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 31, 32 })]
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 32, 33 })]
-        [Theory(DisplayName = "Bmi1: Returns correct index (Vector256)")]
-        [Trait("Category", "Bmi1")]
-        public void Bmi1_ReturnsCorrectIndexFromVector256(Func<int> methodCall, int[]? valueIndexes)
+        [StaticReplacement(typeof(Avx2))]
+        public static class Avx2Substitute
         {
-            // Validate
-            Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
-            Bmi1.IsSupported.Should().BeTrue("because it's required to test Bmi1 functions.");
-
-            // Arrange
-            int? result = null;
-            Action act = () => result = methodCall.Invoke();
-
-            // Act, Assert
-            act.Should().NotThrow("because the paramaters are valid.");
-            result.Should().Be(valueIndexes![0], "because it's the first occurrence of the search value.");
+            public static bool IsSupported { get => false; }
         }
 
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 14, 15 })]
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 15, 16 })]
-        [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 16, 17 })]
-        [Theory(DisplayName = "Bmi1: Returns correct index (Vector128)")]
-        [Trait("Category", "Bmi1")]
-        public void Bmi1_ReturnsCorrectIndexFromVector128(Func<int> methodCall, int[]? valueIndexes)
+        [StaticReplacement(typeof(Sse41))]
+        public static class Sse41Substitute
         {
-            // Validate
-            Sse41.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector128 implementations.");
-            Bmi1.IsSupported.Should().BeTrue("because it's required to test Bmi1 functions.");
-
-            // Arrange
-            int? result = null;
-            Action act = () => result = methodCall.Invoke();
-
-            // Act, Assert
-            act.Should().NotThrow("because the paramaters are valid.");
-            result.Should().Be(valueIndexes![0], "because it's the first occurrence of the search value.");
+            public static bool IsSupported { get => false; }
         }
 
-#endregion Bmi1Tests
+#endregion IonadFody
 
 #region ArrangeTheoryData
 
