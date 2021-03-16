@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.Intrinsics.X86;
 using FluentAssertions;
-using Ionad;
 using Lizt.Extensions;
 using Xunit;
 
@@ -48,6 +47,7 @@ namespace Lizt.Tests
 #region ManualLoopTests
 
         // TODO: Clean up these tests
+        // Disable appropriate instruction sets for each test type
 
         [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 14, 15 })]
         [MemberData(nameof(RunTestData), 100, 0, 100, new int[] { 15, 16 })]
@@ -176,23 +176,23 @@ namespace Lizt.Tests
 
 #endregion Vector256Tests
 
-#region IonadFody
+//#region IonadFody
 
-        // TODO: Figure how to handle these, compile time IF? Different test groups, different configurations? File includes/excludes?
+//        // TODO: Figure how to handle these, compile time IF? Different test groups, different configurations? File includes/excludes?
 
-        [StaticReplacement(typeof(Avx2))]
-        public static class Avx2Substitute
-        {
-            public static bool IsSupported { get => false; }
-        }
+//        [StaticReplacement(typeof(Avx2))]
+//        public static class Avx2Substitute
+//        {
+//            public static bool IsSupported { get => false; }
+//        }
 
-        [StaticReplacement(typeof(Sse41))]
-        public static class Sse41Substitute
-        {
-            public static bool IsSupported { get => false; }
-        }
+//        [StaticReplacement(typeof(Sse41))]
+//        public static class Sse41Substitute
+//        {
+//            public static bool IsSupported { get => false; }
+//        }
 
-#endregion IonadFody
+//#endregion IonadFody
 
 #region ArrangeTheoryData
 

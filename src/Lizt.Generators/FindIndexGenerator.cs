@@ -24,6 +24,7 @@ namespace Lizt.Generators
             "UInt32",
             "UInt64",
         };
+
         private static readonly string[] _sourceArgumentNames = new string[]
         {
             "array",
@@ -41,7 +42,7 @@ namespace Lizt.Generators
             //System.Diagnostics.Debugger.Launch();
             //System.Diagnostics.Debugger.Break();
 
-            var sb = new StringBuilder(capacity: 100_000); // 99,836 total
+            var sb = new StringBuilder(capacity: 102_000); // 101,756 total
 
             GenerateClassHeader(sb);
             GenerateFields(sb);
@@ -94,6 +95,9 @@ $@"        private const int NotFound = {NotFoundValue};
 
         private void GenerateFindIndexMethod(StringBuilder sb, string type, string sourceArgumentName)
         {
+            sb.Append(@"        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+");
+
             var signature = sourceArgumentName switch
             {
                 "array"        => $"        public static unsafe int FindIndex({type}[] {sourceArgumentName}, {type} value, int startIndex, int count)",
@@ -201,7 +205,7 @@ $@"
 
             sb.Append(
 $@"
-                if ({instructionSet256}.IsSupported && endIndex - index >= Vector256<{type}>.Count)
+                if ({instructionSet256}.IsSupported)
                 {{
                     var terminatingIndex = endIndex - ((endIndex - index) % Vector256<{type}>.Count);
                     Vector256<{type}> targetVector = Vector256.Create(value);
@@ -272,7 +276,7 @@ $@"
 
             sb.Append(
 $@"
-                if ({instructionSet128}.IsSupported && endIndex - index >= Vector128<{type}>.Count)
+                if ({instructionSet128}.IsSupported)
                 {{
                     var terminatingIndex = endIndex - ((endIndex - index) % Vector128<{type}>.Count);
                     Vector128<{type}> targetVector = Vector128.Create(value);

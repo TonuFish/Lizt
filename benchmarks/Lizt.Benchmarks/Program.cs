@@ -17,6 +17,12 @@ namespace Lizt.Benchmarks
 
             switch (args[0])
             {
+                case "ArrayBenchmark":
+                    BenchmarkRunner.Run<FindIndex.ArrayBenchmark>();
+                    break;
+                case "ArrayBenchmarkInt":
+                    BenchmarkRunner.Run<FindIndex.ArrayBenchmarkInt>();
+                    break;
                 case "Disassembly":
                     BenchmarkRunner.Run<FindIndex.Disassembly>();
                     break;
@@ -25,6 +31,9 @@ namespace Lizt.Benchmarks
                     break;
                 case "Inlining":
                     BenchmarkRunner.Run<FindIndex.Inlining>();
+                    break;
+                case "SortedIntBenchmark":
+                    BenchmarkRunner.Run<FindIndex.SortedIntBenchmark>();
                     break;
                 case "UnsortedByteBenchmark":
                     BenchmarkRunner.Run<FindIndex.UnsortedByteBenchmark>();
