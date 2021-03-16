@@ -11,7 +11,7 @@ namespace Lizt.Tests
     {
         private const int NotFound = -1;
 
-        // TODO: All test methods need a rejigg given Fody and removal of Lzcnt and Bmi1
+        // TODO: All test methods need a rewrite given Fody and removal of Lzcnt and Bmi1, plus actually being finished
 
 #region ParameterTests
 
@@ -178,7 +178,7 @@ namespace Lizt.Tests
 
 #region IonadFody
 
-        // TODO: Figure how to handle these, compile time IF? Different test groups, different configurations?
+        // TODO: Figure how to handle these, compile time IF? Different test groups, different configurations? File includes/excludes?
 
         [StaticReplacement(typeof(Avx2))]
         public static class Avx2Substitute
