@@ -4,7 +4,7 @@ using BenchmarkDotNet.Jobs;
 using Lizt.Extensions;
 using System;
 
-namespace Lizt.Benchmarks.FindIndex
+namespace Lizt.Benchmarks.FindIndex.Other
 {
     // dotnet run -p benchmarks/Lizt.Benchmarks/Lizt.Benchmarks.csproj --framework net5.0 -c Release 'Disassembly'
 

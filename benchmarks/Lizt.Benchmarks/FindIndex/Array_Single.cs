@@ -7,7 +7,7 @@ using BenchmarkDotNet.Configs;
 
 namespace Lizt.Benchmarks.FindIndex
 {
-    // dotnet run -p benchmarks/Lizt.Benchmarks/Lizt.Benchmarks.csproj --framework net5.0 -c Release 'ArrayBenchmarkInt'
+    // dotnet run -p benchmarks/Lizt.Benchmarks/Lizt.Benchmarks.csproj --framework net5.0 -c Release 'FindIndex' 'Array_Single'
 
     [SimpleJob(RunStrategy.Throughput, RuntimeMoniker.NetCoreApp50, id: "net5.0")]
     [SimpleJob(RunStrategy.Throughput, RuntimeMoniker.NetCoreApp31, id: "net3.1")]
@@ -15,10 +15,10 @@ namespace Lizt.Benchmarks.FindIndex
     [RPlotExporter, CsvMeasurementsExporter] // For R graphs
     [AllStatisticsColumn]
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByParams)]
-    public class ArrayBenchmarkInt
+    public class Array_Single
     {
-        private int _iterations = 15_000_000;
-        private int[] _source;
+        private uint _iterations = 15_000_000;
+        private Single[] _source;
 
         [Params(128, 256, 512, 1_024, 2_048, 4_096)]
         public int N;
@@ -26,34 +26,23 @@ namespace Lizt.Benchmarks.FindIndex
         [GlobalSetup]
         public void Setup()
         {
-            _source = new int[N];
-            var rand = new Random(0);
+            _source = new Single[N];
+            var rand = new Random(765);
             for (int ii = 0 ; ii < _source.Length ; ii++)
             {
-                _source[ii] = rand.Next(0, int.MaxValue - 1);
+                _source[ii] = (Single)rand.Next(0, Int32.MaxValue - 1);
             }
-            _source[N - 1] = int.MaxValue;
+            _source[N - 1] = Single.MaxValue;
         }
-
-//        [Benchmark]
-//        public int InfraOverhead()
-//        {
-//            int result = -1;
-
-//            for (int ii = 0 ; ii < _iterations ; ii++)
-//            { }
-
-//            return result;
-//        }
 
         [Benchmark]
         public int Lizt_FindIndex()
         {
             int result = -1;
 
-            for (int ii = 0 ; ii < _iterations ; ii++)
+            for (uint ii = 0 ; ii < _iterations ; ii++)
             {
-                result = _source.FindIndex(int.MaxValue);
+                result = _source.FindIndex(Single.MaxValue);
             }
 
             return result;
@@ -64,9 +53,9 @@ namespace Lizt.Benchmarks.FindIndex
         {
             int result = -1;
 
-            for (int ii = 0 ; ii < _iterations ; ii++)
+            for (uint ii = 0 ; ii < _iterations ; ii++)
             {
-                result = Array.IndexOf<int>(_source, int.MaxValue);
+                result = Array.IndexOf<Single>(_source, Single.MaxValue);
             }
 
             return result;

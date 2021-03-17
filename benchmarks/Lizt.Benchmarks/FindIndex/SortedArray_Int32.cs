@@ -2,14 +2,13 @@
 using BenchmarkDotNet.Attributes;
 using System;
 using Lizt.Extensions;
-using System.Collections.Generic;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Configs;
 using System.Linq;
 
 namespace Lizt.Benchmarks.FindIndex
 {
-    // dotnet run -p benchmarks/Lizt.Benchmarks/Lizt.Benchmarks.csproj --framework net5.0 -c Release 'SortedIntBenchmark'
+    // dotnet run -p benchmarks/Lizt.Benchmarks/Lizt.Benchmarks.csproj --framework net5.0 -c Release 'FindIndex' 'SortedArray_Int32'
 
     [SimpleJob(RunStrategy.Throughput, RuntimeMoniker.NetCoreApp50, id: "net5.0")]
     [SimpleJob(RunStrategy.Throughput, RuntimeMoniker.NetCoreApp31, id: "net3.1")]
@@ -17,34 +16,32 @@ namespace Lizt.Benchmarks.FindIndex
     [RPlotExporter, CsvMeasurementsExporter] // For R graphs
     [AllStatisticsColumn]
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByParams)]
-    public class SortedIntBenchmark
+    public class SortedArray_Int32
     {
-        private int _iterations = 3_000_000;
+        private int _iterations = 15_000_000;
         private int[] _source;
-        private List<int> _sourceAsList;
 
-        [Params(256, 512, 1_024, 2_048, 4_096, 8_192)]
+        //[Params(256, 512, 1_024, 2_048, 4_096, 8_192)]
+        [Params(128)]
         public int N;
 
         [GlobalSetup]
         public void Setup()
         {
-            var range = Enumerable.Range(int.MinValue, N - 1);
-            range.Append(int.MaxValue);
+            var range = Enumerable.Range(int.MinValue, N - 1).Append(int.MaxValue);
             _source = range.ToArray();
-            _sourceAsList = new List<int>(_source);
         }
 
-        [Benchmark]
-        public int InfraOverhead()
-        {
-            int result = -1;
+        //[Benchmark]
+        //public int InfraOverhead()
+        //{
+        //    int result = -1;
 
-            for (int ii = 0 ; ii < _iterations ; ii++)
-            { }
+        //    for (int ii = 0 ; ii < _iterations ; ii++)
+        //    { }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         [Benchmark(Baseline = true)]
         public int Lizt_Extensions()
@@ -75,26 +72,13 @@ namespace Lizt.Benchmarks.FindIndex
         // TODO: Write and test an unrolled loop
 
         [Benchmark]
-        public int System_Array()
+        public int SpanHelpers_BinarySearch()
         {
             int result = -1;
 
             for (int ii = 0 ; ii < _iterations ; ii++)
             {
                 result = Array.BinarySearch<int>(_source, int.MaxValue);
-            }
-
-            return result;
-        }
-
-        [Benchmark]
-        public int System_List()
-        {
-            int result = -1;
-
-            for (int ii = 0 ; ii < _iterations ; ii++)
-            {
-                result = _sourceAsList.BinarySearch(int.MaxValue);
             }
 
             return result;

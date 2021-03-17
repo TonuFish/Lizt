@@ -5,16 +5,14 @@ using BenchmarkDotNet.Jobs;
 using Lizt.Extensions;
 using System;
 
-namespace Lizt.Benchmarks.FindIndex
+namespace Lizt.Benchmarks.FindIndex.Other
 {
-    // dotnet run -p benchmarks/Lizt.Benchmarks/Lizt.Benchmarks.csproj --framework net5.0 -c Release 'Etw'
+    // dotnet run -p benchmarks/Lizt.Benchmarks/Lizt.Benchmarks.csproj --framework net5.0 -c Release 'Inlining'
 
-    // TODO: This is spitting out a lot of "Broken", need to look into that
-
-    [EtwProfiler]
+    [InliningDiagnoser(logFailuresOnly: false, allowedNamespaces: new string[] { "Lizt.Extensions", "Lizt.Generated.FindIndex.Gen" })]
     [SimpleJob(RunStrategy.Throughput, RuntimeMoniker.NetCoreApp50, id: "net5.0")]
-    //[SimpleJob(RunStrategy.Throughput, RuntimeMoniker.NetCoreApp31, id: "net3.1")]
-    public class Etw
+    [SimpleJob(RunStrategy.Throughput, RuntimeMoniker.NetCoreApp31, id: "net3.1")]
+    public class Inlining
     {
         private int _iterations = 1_000_000;
         private byte[] _source;
