@@ -7,7 +7,7 @@ using BenchmarkDotNet.Configs;
 
 namespace Lizt.Benchmarks.FindIndex
 {
-    // dotnet run -p benchmarks/Lizt.Benchmarks/Lizt.Benchmarks.csproj --framework net5.0 -c Release 'ArrayBenchmark'
+    // dotnet run -p benchmarks/Lizt.Benchmarks/Lizt.Benchmarks.csproj --framework net5.0 -c Release 'ArrayBenchmarkByte'
 
     [SimpleJob(RunStrategy.Throughput, RuntimeMoniker.NetCoreApp50, id: "net5.0")]
     [SimpleJob(RunStrategy.Throughput, RuntimeMoniker.NetCoreApp31, id: "net3.1")]
@@ -15,7 +15,7 @@ namespace Lizt.Benchmarks.FindIndex
     [RPlotExporter, CsvMeasurementsExporter] // For R graphs
     [AllStatisticsColumn]
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByParams)]
-    public class ArrayBenchmark
+    public class ArrayBenchmarkByte
     {
         private int _iterations = 15_000_000;
         private byte[] _source;

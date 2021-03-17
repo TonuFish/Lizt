@@ -17,8 +17,8 @@ namespace Lizt.Benchmarks
 
             switch (args[0])
             {
-                case "ArrayBenchmark":
-                    BenchmarkRunner.Run<FindIndex.ArrayBenchmark>();
+                case "ArrayBenchmarkByte":
+                    BenchmarkRunner.Run<FindIndex.ArrayBenchmarkByte>();
                     break;
                 case "ArrayBenchmarkInt":
                     BenchmarkRunner.Run<FindIndex.ArrayBenchmarkInt>();
