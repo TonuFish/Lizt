@@ -1,7 +1,7 @@
 # Very simple script is very simple derp
 
 $startTime = [System.DateTime]::Now
-Write-Host 'Start time' $startTime
+Write-Host 'Start time: ' $startTime
 
 Write-Host 'BENCHMARK: Byte'
 dotnet run -p benchmarks/Lizt.Benchmarks/Lizt.Benchmarks.csproj --framework net5.0 -c Release 'FindIndex' 'Array_Byte'
@@ -26,7 +26,8 @@ dotnet run -p benchmarks/Lizt.Benchmarks/Lizt.Benchmarks.csproj --framework net5
 Write-Host 'Finished!'
 
 $finishTime = [System.DateTime]::Now
-Write-Host 'Finish time' $finishTime
+Write-Host 'Start time: ' $startTime
+Write-Host 'Finish time: ' $finishTime
 
 $elapsedTime = $finishTime - $startTime
 Write-Host 'Elapsed time:'

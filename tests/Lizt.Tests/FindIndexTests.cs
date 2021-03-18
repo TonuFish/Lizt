@@ -10,7 +10,8 @@ namespace Lizt.Tests
     {
         private const int NotFound = -1;
 
-        // TODO: All test methods need a rewrite given Fody and removal of Lzcnt and Bmi1, plus actually being finished
+        // TODO: All test methods need a rewrite given Fody and removal of Lzcnt and Bmi1, plus actually being finished (bounds checks)
+        // Entire restructure really.
 
 #region ParameterTests
 

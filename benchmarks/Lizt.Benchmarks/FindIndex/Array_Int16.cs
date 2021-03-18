@@ -17,7 +17,7 @@ namespace Lizt.Benchmarks.FindIndex
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByParams)]
     public class Array_Int16
     {
-        private uint _iterations = 15_000_000;
+        private uint _iterations = 5_000_000;
         private Int16[] _source;
 
         [Params(128, 256, 512, 1_024, 2_048, 4_096)]
