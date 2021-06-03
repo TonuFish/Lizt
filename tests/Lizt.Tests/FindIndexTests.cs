@@ -11,7 +11,7 @@ namespace Lizt.Tests
         private const int NotFound = -1;
 
         // TODO: All test methods need a rewrite given Fody and removal of Lzcnt and Bmi1, plus actually being finished (bounds checks)
-        // Entire restructure really.
+        // Entire restructure+redo really.
 
 #region ParameterTests
 
@@ -100,7 +100,8 @@ namespace Lizt.Tests
         public void Vector128_FindsFirstValueOnWidthBoundary(Func<int> methodCall, int[]? valueIndexes)
         {
             // Validate
-            Sse41.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector128 implementations.");
+            Skip.IfNot(Sse41.IsSupported, "because it's the minimum instruction set required to test all Vector128 implementations.");
+            Skip.If(Avx2.IsSupported, "because Vector256 implementations will be run instead.");
 
             // Arrange
             int? result = null;
@@ -119,7 +120,8 @@ namespace Lizt.Tests
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
             // Validate
-            Sse41.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector128 implementations.");
+            Skip.IfNot(Sse41.IsSupported, "because it's the minimum instruction set required to test all Vector128 implementations.");
+            Skip.If(Avx2.IsSupported, "because Vector256 implementations will be run instead.");
 
             // Arrange
             int? result = null;
@@ -145,7 +147,7 @@ namespace Lizt.Tests
         public void Vector256_FindsFirstValueOnWidthBoundary(Func<int> methodCall, int[]? valueIndexes)
         {
             // Validate
-            Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
+            Skip.IfNot(Avx2.IsSupported, "because it's the minimum instruction set required to test all Vector256 implementations.");
 
             // Arrange
             int? result = null;
@@ -164,7 +166,7 @@ namespace Lizt.Tests
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
             // Validate
-            Avx2.IsSupported.Should().BeTrue("because it's the minimum instruction set required to test all Vector256 implementations.");
+            Skip.IfNot(Avx2.IsSupported, "because it's the minimum instruction set required to test all Vector256 implementations.");
 
             // Arrange
             int? result = null;

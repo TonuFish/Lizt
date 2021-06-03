@@ -56,7 +56,7 @@ namespace Lizt.Generators
             }
 
             // Remove spacing newline from last method group
-            sb.Length -= System.Environment.NewLine.Length;
+            sb.Length -= Environment.NewLine.Length;
 
             GenerateClassFooter(sb);
 
@@ -248,7 +248,7 @@ $@"
              * | ulong  | Sse2 |    Sse41     |          |    Sse41    |
              * | float  | Sse  |    Sse       |   Sse    |    Sse      |
              * | double | Sse2 |    Sse2      |   Sse2   |    Sse2     |
-            */
+             */
 
             var instructionSet128 = type switch
             {

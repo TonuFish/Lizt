@@ -7,8 +7,6 @@ namespace Lizt.Samples
     {
         public static void Main()
         {
-            Console.WriteLine("Hello World!");
-
             ReadOnlySpan<Byte> bytes = stackalloc byte[50];
             var foundIndexReadOnlySpan = bytes.FindIndex(0x00);
             Console.WriteLine(foundIndexReadOnlySpan);
