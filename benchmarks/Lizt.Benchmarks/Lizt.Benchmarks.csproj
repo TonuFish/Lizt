@@ -1,17 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
+		<TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
 	</PropertyGroup>
 	<PropertyGroup>
 		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DebugType>portable</DebugType>
+		<DebugType>pdbonly</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Optimize>true</Optimize>
 		<Configuration>Release</Configuration>
+		<OutputType>Exe</OutputType>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="BenchmarkDotNet" Version="0.12.0" />
-		<PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.0"/>
+		<PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+		<PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Lizt.Extensions\Lizt.Extensions.csproj" />
 	</ItemGroup>
 </Project>

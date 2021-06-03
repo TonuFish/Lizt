@@ -1,0 +1,82 @@
+<docs>
+    <members name="FindIndexExtensions">
+        <source name="Array">
+            <additionalParams count="0">
+                <summary>Searches for an element matching the specified value, and returns the zero-based index of the first occurrence within the entire <see cref="Array" />.</summary>
+                <param name="array">The one-dimensional, zero-based array to search.</param>
+                <param name="value">The value that specifies the element to search for.</param>
+                <exception cref="ArgumentOutOfRangeException">Thrown when <c><paramref name="array" />.Length</c> is less than 1, <paramref name="startIndex" /> is outside <paramref name="array" /> bounds, <paramref name="count" /> is less than 1 or <paramref name="startIndex" /> and <paramref name="count" /> combined exceed <paramref name="array" /> bounds.</exception>
+                <returns>The zero-based index of the first occurrence of an element that matches <paramref name="value" />, if found; otherwise, -1.</returns>
+            </additionalParams>
+            <additionalParams count="1">
+                <summary>Searches for an element matching the specified value, and returns the zero-based index of the first occurrence within the range of elements in the <see cref="Array" /> that extends from the specified index to the last element.</summary>
+                <param name="array">The one-dimensional, zero-based array to search.</param>
+                <param name="value">The value that specifies the element to search for.</param>
+                <param name="startIndex">The zero-based starting index of the search.</param>
+                <exception cref="ArgumentOutOfRangeException">Thrown when <c><paramref name="array" />.Length</c> is less than 1, <paramref name="startIndex" /> is outside <paramref name="array" /> bounds, <paramref name="count" /> is less than 1 or <paramref name="startIndex" /> and <paramref name="count" /> combined exceed <paramref name="array" /> bounds.</exception>
+                <returns>The zero-based index of the first occurrence of an element that matches <paramref name="value" />, if found; otherwise, -1.</returns>
+            </additionalParams>
+            <additionalParams count="2">
+                <summary>Searches for an element matching the specified value, and returns the zero-based index of the first occurrence within the range of elements in the <see cref="Array" /> that extends from the specified index and contains the specified number of elements.</summary>
+                <param name="array">The one-dimensional, zero-based array to search.</param>
+                <param name="value">The value that specifies the element to search for.</param>
+                <param name="startIndex">The zero-based starting index of the search.</param>
+                <param name="count">The number of elements in the section to search.</param>
+                <exception cref="ArgumentOutOfRangeException">Thrown when <c><paramref name="array" />.Length</c> is less than 1, <paramref name="startIndex" /> is outside <paramref name="array" /> bounds, <paramref name="count" /> is less than 1 or <paramref name="startIndex" /> and <paramref name="count" /> combined exceed <paramref name="array" /> bounds.</exception>
+                <returns>The zero-based index of the first occurrence of an element that matches <paramref name="value" />, if found; otherwise, -1.</returns>
+            </additionalParams>
+        </source>
+        <source name="Span">
+            <additionalParams count="0">
+                <summary>Searches for an element matching the specified value, and returns the zero-based index of the first occurrence within the entire <see cref="Span{T}" />.</summary>
+                <param name="span">The zero-based span to search.</param>
+                <param name="value">The value that specifies the element to search for.</param>
+                <exception cref="ArgumentOutOfRangeException">Thrown when <c><paramref name="span" />.Length</c> is less than 1, <paramref name="startIndex" /> is outside <paramref name="span" /> bounds, <paramref name="count" /> is less than 1 or <paramref name="startIndex" /> and <paramref name="count" /> combined exceed <paramref name="span" /> bounds.</exception>
+                <returns>The zero-based index of the first occurrence of an element that matches <paramref name="value" />, if found; otherwise, -1.</returns>
+            </additionalParams>
+            <additionalParams count="1">
+                <summary>Searches for an element matching the specified value, and returns the zero-based index of the first occurrence within the range of elements in the <see cref="Span{T}" /> that extends from the specified index to the last element.</summary>
+                <param name="span">The zero-based span to search.</param>
+                <param name="value">The value that specifies the element to search for.</param>
+                <param name="startIndex">The zero-based starting index of the search.</param>
+                <exception cref="ArgumentOutOfRangeException">Thrown when <c><paramref name="span" />.Length</c> is less than 1, <paramref name="startIndex" /> is outside <paramref name="span" /> bounds, <paramref name="count" /> is less than 1 or <paramref name="startIndex" /> and <paramref name="count" /> combined exceed <paramref name="span" /> bounds.</exception>
+                <returns>The zero-based index of the first occurrence of an element that matches <paramref name="value" />, if found; otherwise, -1.</returns>
+            </additionalParams>
+            <additionalParams count="2">
+                <summary>Searches for an element matching the specified value, and returns the zero-based index of the first occurrence within the range of elements in the <see cref="Span{T}" /> that extends from the specified index and contains the specified number of elements.</summary>
+                <param name="span">The zero-based span to search.</param>
+                <param name="value">The value that specifies the element to search for.</param>
+                <param name="startIndex">The zero-based starting index of the search.</param>
+                <param name="count">The number of elements in the section to search.</param>
+                <exception cref="ArgumentOutOfRangeException">Thrown when <c><paramref name="span" />.Length</c> is less than 1, <paramref name="startIndex" /> is outside <paramref name="span" /> bounds, <paramref name="count" /> is less than 1 or <paramref name="startIndex" /> and <paramref name="count" /> combined exceed <paramref name="span" /> bounds.</exception>
+                <returns>The zero-based index of the first occurrence of an element that matches <paramref name="value" />, if found; otherwise, -1.</returns>
+            </additionalParams>
+        </source>
+        <source name="ReadOnlySpan">
+            <additionalParams count="0">
+                <summary>Searches for an element matching the specified value, and returns the zero-based index of the first occurrence within the entire <see cref="ReadOnlySpan{T}" />.</summary>
+                <param name="readOnlySpan">The zero-based immutable span to search.</param>
+                <param name="value">The value that specifies the element to search for.</param>
+                <exception cref="ArgumentOutOfRangeException">Thrown when <c><paramref name="readOnlySpan" />.Length</c> is less than 1, <paramref name="startIndex" /> is outside <paramref name="readOnlySpan" /> bounds, <paramref name="count" /> is less than 1 or <paramref name="startIndex" /> and <paramref name="count" /> combined exceed <paramref name="readOnlySpan" /> bounds.</exception>
+                <returns>The zero-based index of the first occurrence of an element that matches <paramref name="value" />, if found; otherwise, -1.</returns>
+            </additionalParams>
+            <additionalParams count="1">
+                <summary>Searches for an element matching the specified value, and returns the zero-based index of the first occurrence within the range of elements in the <see cref="ReadOnlySpan{T}" /> that extends from the specified index to the last element.</summary>
+                <param name="readOnlySpan">The zero-based immutable span to search.</param>
+                <param name="value">The value that specifies the element to search for.</param>
+                <param name="startIndex">The zero-based starting index of the search.</param>
+                <exception cref="ArgumentOutOfRangeException">Thrown when <c><paramref name="readOnlySpan" />.Length</c> is less than 1, <paramref name="startIndex" /> is outside <paramref name="readOnlySpan" /> bounds, <paramref name="count" /> is less than 1 or <paramref name="startIndex" /> and <paramref name="count" /> combined exceed <paramref name="readOnlySpan" /> bounds.</exception>
+                <returns>The zero-based index of the first occurrence of an element that matches <paramref name="value" />, if found; otherwise, -1.</returns>
+            </additionalParams>
+            <additionalParams count="2">
+                <summary>Searches for an element matching the specified value, and returns the zero-based index of the first occurrence within the range of elements in the <see cref="ReadOnlySpan{T}" /> that extends from the specified index and contains the specified number of elements.</summary>
+                <param name="readOnlySpan">The zero-based immutable span to search.</param>
+                <param name="value">The value that specifies the element to search for.</param>
+                <param name="startIndex">The zero-based starting index of the search.</param>
+                <param name="count">The number of elements in the section to search.</param>
+                <exception cref="ArgumentOutOfRangeException">Thrown when <c><paramref name="readOnlySpan" />.Length</c> is less than 1, <paramref name="startIndex" /> is outside <paramref name="readOnlySpan" /> bounds, <paramref name="count" /> is less than 1 or <paramref name="startIndex" /> and <paramref name="count" /> combined exceed <paramref name="readOnlySpan" /> bounds.</exception>
+                <returns>The zero-based index of the first occurrence of an element that matches <paramref name="value" />, if found; otherwise, -1.</returns>
+            </additionalParams>
+        </source>
+    </members>
+</docs>
