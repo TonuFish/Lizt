@@ -34,4 +34,4 @@ The repo is very rough around the edges, but the initial work is there.
 
 ### AVX2 `int` Comparison
 
-![i7-7820X_Int32](\docs\benchmarks\0.7.0-alpha\x86_i7-7820X@4.0GHz\AVX_Int32_Barplot.png)
+![i7-7820X_Int32](docs/benchmarks/0.7.0-alpha/x86_i7-7820X@4.0GHz/AVX_Int32_Barplot.png)
